@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "519132358829",
+    "firebase_url": "https://pure-air-pwr.firebaseio.com",
+    "project_id": "pure-air-pwr",
+    "storage_bucket": "pure-air-pwr.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:519132358829:android:1565d44b49c00a8a",
+        "android_client_info": {
+          "package_name": "com.teamnumberb.pureair"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "519132358829-movqsltb91sli529d52ajrfstl7ra3b9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyW45bepSN234Aa6SSDmxdpd2S9gIJYCc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "519132358829-movqsltb91sli529d52ajrfstl7ra3b9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
