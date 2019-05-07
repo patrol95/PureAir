@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/textView7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="12dp"
+        android:gravity="center_horizontal"
+        android:text="Shorter\nDistance"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="18sp"
+        app:layout_constraintStart_toEndOf="@+id/prioritize_SeekBar"
+        app:layout_constraintTop_toBottomOf="@+id/textView5" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="5dp"
+        android:gravity="center_horizontal"
+        android:text="Less\nPollution"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toStartOf="@+id/prioritize_SeekBar"
+        app:layout_constraintTop_toBottomOf="@+id/textView5" />
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:gravity="center_horizontal"
+        android:text="Prioritize"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.493"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pollution_tolerance2" />
+
+    <TextView
+        android:id="@+id/pollution_tolerance5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="μg/m^3"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pollution_tolerance4" />
+
+    <TextView
+        android:id="@+id/pollution_tolerance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="0"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/distance_seekBar" />
+
+    <TextView
+        android:id="@+id/pollution_tolerance4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="0"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pollution_seekBar" />
+
+    <TextView
+        android:id="@+id/pollution_tolerance2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="m"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pollution_tolerance" />
+
+    <SeekBar
+        android:id="@+id/pollution_seekBar"
+        style="@style/Widget.AppCompat.SeekBar"
+        android:layout_width="300dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="20dp"
+        android:progressTint="@color/colorPrimaryDark"
+        android:thumbTint="@color/colorPrimaryDark"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:gravity="center_horizontal"
+        android:text="Additional Distance Tolerance"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pollution_tolerance5" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:gravity="center_horizontal"
+        android:text="Pollution Tolerance"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <SeekBar
+        android:id="@+id/distance_seekBar"
+        android:layout_width="300dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="20dp"
+        android:progressTint="@color/colorPrimaryDark"
+        android:thumbTint="@color/colorPrimaryDark"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView3" />
+
+    <SeekBar
+        android:id="@+id/prioritize_SeekBar"
+        style="@style/Widget.AppCompat.SeekBar.Discrete"
+        android:layout_width="200dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="20dp"
+        android:max="10"
+        android:progress="5"
+        android:progressBackgroundTint="@android:color/white"
+        android:progressTint="@android:color/white"
+        android:thumbTint="@color/colorPrimaryDark"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView5"
+        app:tickMarkTint="@color/colorPrimaryDark" />
+
+</android.support.constraint.ConstraintLayout>
