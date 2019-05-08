@@ -55,10 +55,10 @@
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pollution_tolerance4" />
+        app:layout_constraintTop_toBottomOf="@+id/pollution_tolerance_value" />
 
     <TextView
-        android:id="@+id/pollution_tolerance"
+        android:id="@+id/distance_tolerance_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
@@ -70,7 +70,7 @@
         app:layout_constraintTop_toBottomOf="@+id/distance_seekBar" />
 
     <TextView
-        android:id="@+id/pollution_tolerance4"
+        android:id="@+id/pollution_tolerance_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
@@ -91,7 +91,7 @@
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pollution_tolerance" />
+        app:layout_constraintTop_toBottomOf="@+id/distance_tolerance_value" />
 
     <SeekBar
         android:id="@+id/pollution_seekBar"
@@ -99,6 +99,7 @@
         android:layout_width="300dp"
         android:layout_height="30dp"
         android:layout_marginTop="20dp"
+        android:max="@integer/maxAcceptablePollution"
         android:progressTint="@color/colorPrimaryDark"
         android:thumbTint="@color/colorPrimaryDark"
         app:layout_constraintEnd_toEndOf="parent"
@@ -137,6 +138,7 @@
         android:layout_width="300dp"
         android:layout_height="30dp"
         android:layout_marginTop="20dp"
+        android:max="@integer/maxAcceptableDistance"
         android:progressTint="@color/colorPrimaryDark"
         android:thumbTint="@color/colorPrimaryDark"
         app:layout_constraintEnd_toEndOf="parent"
