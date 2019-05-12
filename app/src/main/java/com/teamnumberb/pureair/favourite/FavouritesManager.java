@@ -3,26 +3,27 @@ package com.teamnumberb.pureair.favourite;
 import android.content.Context;
 
 import java.io.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 
-public class AddFavouriteManager {
+public class FavouritesManager {
     private static String fileName = "favourites";
 
     private Context context;
-    private FavouritesData data = new FavouritesData();
+    private ArrayList<Place> favourites = new ArrayList<>();
 
-    public AddFavouriteManager(Context c) {
+    public FavouritesManager(Context c) {
         context = c;
         readData();
     }
 
-    public ArrayList<Place> getFavourites() {
-        return data.getFavourites();
+    public List<Place> getFavourites() {
+        readData();
+        return favourites;
     }
 
     public void addFavourite(Place place) {
-        getFavourites().add(place);
+        favourites.add(place);
         saveData();
     }
 
@@ -30,7 +31,8 @@ public class AddFavouriteManager {
         try {
             FileInputStream fis = context.openFileInput(fileName);
             ObjectInputStream is = new ObjectInputStream(fis);
-            data = (FavouritesData) is.readObject();
+            FavouritesData data = (FavouritesData) is.readObject();
+            favourites = data.getFavourites();
             is.close();
             fis.close();
         } catch (FileNotFoundException e) {
@@ -45,7 +47,7 @@ public class AddFavouriteManager {
         try {
             FileOutputStream fos = context.openFileOutput(fileName, Context.MODE_PRIVATE);
             ObjectOutputStream os = new ObjectOutputStream(fos);
-            os.writeObject(data);
+            os.writeObject(new FavouritesData(favourites));
             os.close();
             fos.close();
         } catch (Exception e) {

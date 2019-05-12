@@ -8,7 +8,6 @@ import android.view.Gravity;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.teamnumberb.pureair.R;
 
@@ -20,11 +19,12 @@ import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 
 public class AddFavouriteActivity extends AppCompatActivity {
-    AddFavouriteManager addFavouriteManager = new AddFavouriteManager(this);
+    FavouritesManager favouritesManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_favourite);
+        favouritesManager = new FavouritesManager(this);
 
         final MapView mapView = findViewById(R.id.map);
         final GeoPoint startPoint = new GeoPoint(51.10, 17.06);
@@ -60,7 +60,7 @@ public class AddFavouriteActivity extends AppCompatActivity {
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         String name = nameEditText.getText().toString();
-                        addFavouriteManager.addFavourite(new Place(name, p.getLatitude(), p.getLongitude()));
+                        favouritesManager.addFavourite(new Place(name, p.getLatitude(), p.getLongitude()));
                         finish();
                     }
                 })
