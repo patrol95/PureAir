@@ -10,7 +10,7 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 
-public class AddFavouriteActivity extends AppCompatActivity {
+public class PlacePickerActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +26,7 @@ public class AddFavouriteActivity extends AppCompatActivity {
         mapView.getOverlayManager().add(new MapEventsOverlay(new MapEventsReceiver() {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
-                Toast.makeText(AddFavouriteActivity.this, "TODO: Save to favourites: " + p.toDoubleString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(PlacePickerActivity.this, "TODO: Save to favourites: " + p.toDoubleString(), Toast.LENGTH_SHORT).show();
                 return true;
             }
 

@@ -9,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.teamnumberb.pureair.favourites.AddFavouriteActivity;
+
 public class HomeFragment extends Fragment {
 
     public static HomeFragment newInstance() {
@@ -27,7 +29,7 @@ public class HomeFragment extends Fragment {
         view.findViewById(R.id.add_favorite).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getContext(), PlacePickerActivity.class);
+                Intent intent = new Intent(getContext(), AddFavouriteActivity.class);
                 startActivity(intent);
             }
         });
