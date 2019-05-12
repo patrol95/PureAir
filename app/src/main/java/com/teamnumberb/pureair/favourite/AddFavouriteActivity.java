@@ -1,8 +1,10 @@
-package com.teamnumberb.pureair;
+package com.teamnumberb.pureair.favourite;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Toast;
+
+import com.teamnumberb.pureair.R;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.events.MapEventsReceiver;
@@ -10,12 +12,12 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 
-public class PlacePickerActivity extends AppCompatActivity {
+public class AddFavouriteActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_place_picker);
+        setContentView(R.layout.activity_add_favourite);
 
         MapView mapView = findViewById(R.id.map);
         GeoPoint startPoint = new GeoPoint(51.10, 17.06);
@@ -26,7 +28,7 @@ public class PlacePickerActivity extends AppCompatActivity {
         mapView.getOverlayManager().add(new MapEventsOverlay(new MapEventsReceiver() {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
-                Toast.makeText(PlacePickerActivity.this, "TODO: Save to favourites: " + p.toDoubleString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(AddFavouriteActivity.this, "TODO: Save to favourites: " + p.toDoubleString(), Toast.LENGTH_SHORT).show();
                 return true;
             }
 

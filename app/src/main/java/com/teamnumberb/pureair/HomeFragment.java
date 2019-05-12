@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.teamnumberb.pureair.favourite.AddFavouriteActivity;
 import com.teamnumberb.pureair.favourites.AddFavouriteActivity;
 
 public class HomeFragment extends Fragment {
