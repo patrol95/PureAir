@@ -1,25 +1,27 @@
 package com.teamnumberb.pureair.favourite;
 
-public class Place {
-    private int name;
-    private int latitude;
-    private int longitude;
+import java.io.Serializable;
 
-    public Place(int name, int latitude, int longitude) {
+public class Place implements Serializable {
+    private String name;
+    private double latitude;
+    private double longitude;
+
+    public Place(String name, double latitude, double longitude) {
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
     }
 
-    public int getName() {
+    public String getName() {
         return name;
     }
 
-    public int getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public int getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 }

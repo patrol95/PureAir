@@ -20,7 +20,7 @@ import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 
 public class AddFavouriteActivity extends AppCompatActivity {
-
+    AddFavouriteManager addFavouriteManager = new AddFavouriteManager(this);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,8 +39,8 @@ public class AddFavouriteActivity extends AppCompatActivity {
                 marker.setPosition(p);
                 marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
                 mapView.getOverlays().add(marker);
-                mapController.animateTo(marker.getPosition());
-                showInput();
+                mapController.animateTo(p);
+                showInput(p);
                 return true;
             }
 
@@ -51,7 +51,7 @@ public class AddFavouriteActivity extends AppCompatActivity {
         }));
     }
 
-    private void showInput() {
+    private void showInput(final GeoPoint p) {
         final EditText nameEditText = new EditText(this);
 
         AlertDialog dlg = new AlertDialog.Builder(this)
@@ -60,7 +60,8 @@ public class AddFavouriteActivity extends AppCompatActivity {
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         String name = nameEditText.getText().toString();
-                        //TODO handle this
+                        addFavouriteManager.addFavourite(new Place(name, p.getLatitude(), p.getLongitude()));
+                        finish();
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
