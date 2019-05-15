@@ -5,15 +5,25 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.teamnumberb.pureair.favourite.AddFavouriteActivity;
+import com.teamnumberb.pureair.favourite.FavouritesAdapter;
+import com.teamnumberb.pureair.favourite.FavouritesManager;
 
 public class HomeFragment extends Fragment {
 
     public static HomeFragment newInstance() {
         return new HomeFragment();
     }
+
+    private FavouritesManager favouritesManager;
+    private FavouritesAdapter favouritesAdapter = new FavouritesAdapter();
+
 
     @Nullable
     @Override
@@ -24,12 +34,23 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        favouritesManager = new FavouritesManager(getContext());
         view.findViewById(R.id.add_favorite).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getContext(), PlacePickerActivity.class);
-                startActivity(intent);
+                Intent intent = new Intent(getContext(), AddFavouriteActivity.class);
+                startActivityForResult(intent, 0);
             }
         });
+        final RecyclerView recyclerView = view.findViewById(R.id.favorites_recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(favouritesAdapter);
+        favouritesAdapter.updateFavourites(favouritesManager.getFavourites());
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        favouritesAdapter.updateFavourites(favouritesManager.getFavourites());
     }
 }
