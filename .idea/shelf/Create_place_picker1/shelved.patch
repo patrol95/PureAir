@@ -1,0 +1,81 @@
+Index: app/src/main/java/com/teamnumberb/pureair/HomeFragment.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.teamnumberb.pureair;\r\n\r\nimport android.content.Intent;\r\nimport android.os.Bundle;\r\nimport android.support.annotation.NonNull;\r\nimport android.support.annotation.Nullable;\r\nimport android.support.v4.app.Fragment;\r\nimport android.view.LayoutInflater;\r\nimport android.view.View;\r\nimport android.view.ViewGroup;\r\n\r\npublic class HomeFragment extends Fragment {\r\n\r\n    public static HomeFragment newInstance() {\r\n        return new HomeFragment();\r\n    }\r\n\r\n    @Nullable\r\n    @Override\r\n    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {\r\n        return inflater.inflate(R.layout.fragment_home, null);\r\n    }\r\n\r\n    @Override\r\n    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {\r\n        super.onViewCreated(view, savedInstanceState);\r\n        view.findViewById(R.id.add_favorite).setOnClickListener(new View.OnClickListener() {\r\n            @Override\r\n            public void onClick(View v) {\r\n                Intent intent = new Intent(getContext(), PlacePickerActivity.class);\r\n                startActivity(intent);\r\n            }\r\n        });\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/teamnumberb/pureair/HomeFragment.java	(date 1557669130000)
++++ app/src/main/java/com/teamnumberb/pureair/HomeFragment.java	(date 1557668744272)
+@@ -9,6 +9,8 @@
+ import android.view.View;
+ import android.view.ViewGroup;
+ 
++import com.teamnumberb.pureair.favourites.AddFavouriteActivity;
++
+ public class HomeFragment extends Fragment {
+ 
+     public static HomeFragment newInstance() {
+@@ -27,7 +29,7 @@
+         view.findViewById(R.id.add_favorite).setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View v) {
+-                Intent intent = new Intent(getContext(), PlacePickerActivity.class);
++                Intent intent = new Intent(getContext(), AddFavouriteActivity.class);
+                 startActivity(intent);
+             }
+         });
+Index: app/src/main/res/values/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><resources>\r\n    <string name=\"app_name\">Pure Air</string>\r\n    <string name=\"title_home\">Home</string>\r\n    <string name=\"title_settings\">Settings</string>\r\n    <string name=\"title_directions\">Directions</string>\r\n    <string name=\"title_place_picker\">Place Picker</string>\r\n</resources>\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/values/strings.xml	(date 1557669130000)
++++ app/src/main/res/values/strings.xml	(date 1557668744297)
+@@ -3,5 +3,5 @@
+     <string name="title_home">Home</string>
+     <string name="title_settings">Settings</string>
+     <string name="title_directions">Directions</string>
+-    <string name="title_place_picker">Place Picker</string>
++    <string name="title_add_favourite">Add favourite</string>
+ </resources>
+Index: app/src/main/AndroidManifest.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    package=\"com.teamnumberb.pureair\">\r\n    <uses-permission-sdk-23\r\n        android:name=\"android.permission.ACCESS_COARSE_LOCATION\"\r\n        />\r\n    <uses-permission-sdk-23\r\n        android:name=\"android.permission.ACCESS_FINE_LOCATION\"\r\n        />\r\n    <uses-permission-sdk-23\r\n        android:name=\"android.permission.ACCESS_WIFI_STATE\"\r\n        />\r\n    <uses-permission-sdk-23\r\n        android:name=\"android.permission.ACCESS_NETWORK_STATE\"\r\n        />\r\n    <uses-permission-sdk-23\r\n        android:name=\"android.permission.INTERNET\"\r\n        />\r\n    <uses-permission-sdk-23\r\n        android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\"\r\n        />\r\n\r\n    <application\r\n        android:allowBackup=\"true\"\r\n        android:icon=\"@mipmap/ic_launcher\"\r\n        android:label=\"@string/app_name\"\r\n        android:roundIcon=\"@mipmap/ic_launcher_round\"\r\n        android:supportsRtl=\"true\"\r\n        android:theme=\"@style/AppTheme\">\r\n        <activity\r\n            android:name=\".MainActivity\"\r\n            android:label=\"@string/app_name\">\r\n            <intent-filter>\r\n                <action android:name=\"android.intent.action.MAIN\" />\r\n\r\n                <category android:name=\"android.intent.category.LAUNCHER\" />\r\n            </intent-filter>\r\n        </activity>\r\n        <activity\r\n            android:name=\".PlacePickerActivity\"\r\n            android:label=\"@string/title_place_picker\"/>\r\n    </application>\r\n\r\n</manifest>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/AndroidManifest.xml	(date 1557669130000)
++++ app/src/main/AndroidManifest.xml	(date 1557668744287)
+@@ -1,5 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:tools="http://schemas.android.com/tools"
+     package="com.teamnumberb.pureair">
+     <uses-permission-sdk-23
+         android:name="android.permission.ACCESS_COARSE_LOCATION"
+@@ -26,7 +27,8 @@
+         android:label="@string/app_name"
+         android:roundIcon="@mipmap/ic_launcher_round"
+         android:supportsRtl="true"
+-        android:theme="@style/AppTheme">
++        android:theme="@style/AppTheme"
++        tools:ignore="GoogleAppIndexingWarning">
+         <activity
+             android:name=".MainActivity"
+             android:label="@string/app_name">
+@@ -37,8 +39,8 @@
+             </intent-filter>
+         </activity>
+         <activity
+-            android:name=".PlacePickerActivity"
+-            android:label="@string/title_place_picker"/>
++            android:name=".favourites.AddFavouriteActivity"
++            android:label="@string/title_add_favourite"/>
+     </application>
+ 
+ </manifest>
+\ No newline at end of file
