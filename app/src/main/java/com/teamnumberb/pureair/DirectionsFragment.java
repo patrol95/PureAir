@@ -3,6 +3,7 @@ package com.teamnumberb.pureair;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -29,8 +30,62 @@ import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
+import org.osmdroid.views.overlay.Polygon;
+
+import java.util.List;
 
 import static android.support.constraint.Constraints.TAG;
+
+class PollutionDataListener implements Runnable {
+    private MapView mapView;
+    private PollutionDataCollector collector;
+    private List<PollutionData> pollutionData = null;
+
+    public PollutionDataListener(MapView mapView,
+                                 PollutionDataCollector collector) {
+        this.mapView = mapView;
+        this.collector = collector;
+    }
+
+    @Override
+    public void run() {
+        do {
+            pollutionData = collector.getPollutionData();
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        } while (pollutionData == null);
+
+        addPollutionDataToMap();
+    }
+
+    private void addPollutionDataToMap() {
+        for (PollutionData data : pollutionData) {
+            Polygon circle = new Polygon(mapView);
+            circle.setPoints(Polygon.pointsAsCircle(data.location, 100.0));
+            circle.setFillColor(getColorCodeOfPmValue(data.pm25));
+            circle.setStrokeWidth(0);
+            mapView.getOverlays().add(circle);
+        }
+        mapView.invalidate();
+    }
+
+    private int getColorCodeOfPmValue(double pm25) {
+        if (pm25 < 12)
+            return 0xFF00b050;
+        if (pm25 < 36)
+            return 0xFF92d050;
+        if (pm25 < 60)
+            return 0xFFffff00;
+        if (pm25 < 85)
+            return 0xFFff7000;
+        if (pm25 < 120)
+            return 0xFFff0000;
+        return 0xFFc00000;
+    }
+}
 
 public class DirectionsFragment extends Fragment implements LocationListener {
 
@@ -45,6 +100,13 @@ public class DirectionsFragment extends Fragment implements LocationListener {
     private RotationGestureOverlay mRotationGestureOverlay;
     private LocationManager lm;
     private Location currentLocation = null;
+    private PollutionDataCollector airlyData;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        airlyData = new AirlyDataCollector(context);
+    }
 
     @Nullable
     @Override
@@ -69,6 +131,8 @@ public class DirectionsFragment extends Fragment implements LocationListener {
 
         View v = inflater.inflate(R.layout.fragment_directions, null);
         mMapView = v.findViewById(R.id.map);
+
+        asyncAddPollutionDataToMap();
 
         return v;
     }
@@ -171,5 +235,10 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         mCompassOverlay = null;
         mScaleBarOverlay = null;
         mRotationGestureOverlay = null;
+    }
+
+    private void asyncAddPollutionDataToMap() {
+        PollutionDataListener t = new PollutionDataListener(mMapView, airlyData);
+        t.run();
     }
 }
