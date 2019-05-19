@@ -1,0 +1,154 @@
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ProjectRootManager\" version=\"2\" languageLevel=\"JDK_1_8\" project-jdk-name=\"1.8\" project-jdk-type=\"JavaSDK\">\r\n    <output url=\"file://$PROJECT_DIR$/build/classes\" />\r\n  </component>\r\n  <component name=\"ProjectType\">\r\n    <option name=\"id\" value=\"Android\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/misc.xml	(date 1557901488000)
++++ .idea/misc.xml	(date 1557902250849)
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="1.8" project-jdk-type="JavaSDK">
++  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+     <output url="file://$PROJECT_DIR$/build/classes" />
+   </component>
+   <component name="ProjectType">
+Index: app/src/main/java/com/teamnumberb/pureair/favourite/Place.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.teamnumberb.pureair.favourite;\r\n\r\nimport java.io.Serializable;\r\n\r\npublic class Place implements Serializable {\r\n    private String name;\r\n    private double latitude;\r\n    private double longitude;\r\n\r\n    public Place(String name, double latitude, double longitude) {\r\n        this.name = name;\r\n        this.latitude = latitude;\r\n        this.longitude = longitude;\r\n    }\r\n\r\n    public String getName() {\r\n        return name;\r\n    }\r\n\r\n    public double getLatitude() {\r\n        return latitude;\r\n    }\r\n\r\n    public double getLongitude() {\r\n        return longitude;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/teamnumberb/pureair/favourite/Place.java	(date 1557901488000)
++++ app/src/main/java/com/teamnumberb/pureair/favourite/Place.java	(date 1558273636644)
+@@ -1,6 +1,7 @@
+ package com.teamnumberb.pureair.favourite;
+ 
+ import java.io.Serializable;
++import java.util.Objects;
+ 
+ public class Place implements Serializable {
+     private String name;
+@@ -24,4 +25,19 @@
+     public double getLongitude() {
+         return longitude;
+     }
++
++    @Override
++    public boolean equals(Object o) {
++        if (this == o) return true;
++        if (o == null || getClass() != o.getClass()) return false;
++        Place place = (Place) o;
++        return Double.compare(place.latitude, latitude) == 0 &&
++                Double.compare(place.longitude, longitude) == 0 &&
++                Objects.equals(name, place.name);
++    }
++
++    @Override
++    public int hashCode() {
++        return Objects.hash(name, latitude, longitude);
++    }
+ }
+Index: app/src/main/res/layout/item_favourite.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<android.support.constraint.ConstraintLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\r\n    xmlns:tools=\"http://schemas.android.com/tools\"\r\n    android:layout_width=\"match_parent\"\r\n    android:layout_height=\"wrap_content\">\r\n\r\n    <TextView\r\n        android:id=\"@+id/favouriteNameTextView\"\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:layout_marginTop=\"16dp\"\r\n        android:layout_marginStart=\"16dp\"\r\n        android:layout_marginBottom=\"16dp\"\r\n        android:textSize=\"24sp\"\r\n        tools:text=\"Dom\"\r\n        app:layout_constraintBottom_toBottomOf=\"parent\"\r\n        app:layout_constraintStart_toStartOf=\"parent\"\r\n        app:layout_constraintTop_toTopOf=\"parent\" />\r\n\r\n    <ImageView\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:layout_marginTop=\"8dp\"\r\n        android:layout_marginEnd=\"16dp\"\r\n        android:layout_marginBottom=\"8dp\"\r\n        android:src=\"@drawable/ic_delete\"\r\n        app:layout_constraintBottom_toBottomOf=\"parent\"\r\n        app:layout_constraintEnd_toEndOf=\"parent\"\r\n        app:layout_constraintTop_toTopOf=\"parent\" />\r\n</android.support.constraint.ConstraintLayout>\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/item_favourite.xml	(date 1557901488000)
++++ app/src/main/res/layout/item_favourite.xml	(date 1557925010308)
+@@ -19,6 +19,7 @@
+         app:layout_constraintTop_toTopOf="parent" />
+ 
+     <ImageView
++        android:id="@+id/deleteFavourite"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_marginTop="8dp"
+Index: app/src/main/java/com/teamnumberb/pureair/favourite/FavouritesManager.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.teamnumberb.pureair.favourite;\r\n\r\nimport android.content.Context;\r\n\r\nimport java.io.*;\r\nimport java.util.ArrayList;\r\nimport java.util.List;\r\n\r\npublic class FavouritesManager {\r\n    private static String fileName = \"favourites\";\r\n\r\n    private Context context;\r\n    private ArrayList<Place> favourites = new ArrayList<>();\r\n\r\n    public FavouritesManager(Context c) {\r\n        context = c;\r\n        readData();\r\n    }\r\n\r\n    public List<Place> getFavourites() {\r\n        readData();\r\n        return favourites;\r\n    }\r\n\r\n    public void addFavourite(Place place) {\r\n        favourites.add(place);\r\n        saveData();\r\n    }\r\n\r\n    private void readData() {\r\n        try {\r\n            FileInputStream fis = context.openFileInput(fileName);\r\n            ObjectInputStream is = new ObjectInputStream(fis);\r\n            FavouritesData data = (FavouritesData) is.readObject();\r\n            favourites = data.getFavourites();\r\n            is.close();\r\n            fis.close();\r\n        } catch (FileNotFoundException e) {\r\n            System.out.println(\"Input file not found, probably first time to use application.\");\r\n        } catch (Exception e) {\r\n            System.err.println(\"We shouldn't get here!\");\r\n            e.printStackTrace();\r\n        }\r\n    }\r\n\r\n    private void saveData() {\r\n        try {\r\n            FileOutputStream fos = context.openFileOutput(fileName, Context.MODE_PRIVATE);\r\n            ObjectOutputStream os = new ObjectOutputStream(fos);\r\n            os.writeObject(new FavouritesData(favourites));\r\n            os.close();\r\n            fos.close();\r\n        } catch (Exception e) {\r\n            System.err.println(\"We shouldn't get here!\");\r\n            e.printStackTrace();\r\n        }\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/teamnumberb/pureair/favourite/FavouritesManager.java	(date 1557901488000)
++++ app/src/main/java/com/teamnumberb/pureair/favourite/FavouritesManager.java	(date 1558273297046)
+@@ -27,6 +27,11 @@
+         saveData();
+     }
+ 
++    public void deleteFavorite(Place place){
++        favourites.remove(place);
++        saveData();
++    }
++
+     private void readData() {
+         try {
+             FileInputStream fis = context.openFileInput(fileName);
+Index: app/src/main/java/com/teamnumberb/pureair/favourite/FavouritesAdapter.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.teamnumberb.pureair.favourite;\r\n\r\nimport android.support.annotation.NonNull;\r\nimport android.support.v7.widget.RecyclerView;\r\nimport android.view.LayoutInflater;\r\nimport android.view.View;\r\nimport android.view.ViewGroup;\r\nimport android.widget.TextView;\r\n\r\nimport com.teamnumberb.pureair.R;\r\n\r\nimport java.util.ArrayList;\r\nimport java.util.List;\r\n\r\npublic class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.FavoriteViewHolder> {\r\n    private List<Place> favourites = new ArrayList<>();\r\n\r\n    @NonNull\r\n    @Override\r\n    public FavoriteViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {\r\n        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_favourite, viewGroup, false);\r\n        return new FavoriteViewHolder(view);\r\n    }\r\n\r\n    @Override\r\n    public void onBindViewHolder(@NonNull FavoriteViewHolder favoriteViewHolder, int i) {\r\n        favoriteViewHolder.bind(favourites.get(i));\r\n    }\r\n\r\n    @Override\r\n    public int getItemCount() {\r\n        return favourites.size();\r\n    }\r\n\r\n    public void updateFavourites(List<Place> favourites) {\r\n        this.favourites = favourites;\r\n        notifyDataSetChanged();\r\n    }\r\n\r\n    public class FavoriteViewHolder extends RecyclerView.ViewHolder {\r\n        public FavoriteViewHolder(@NonNull View itemView) {\r\n            super(itemView);\r\n        }\r\n\r\n        public void bind(Place place) {\r\n            TextView textView = itemView.findViewById(R.id.favouriteNameTextView);\r\n            textView.setText(place.getName());\r\n        }\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/teamnumberb/pureair/favourite/FavouritesAdapter.java	(date 1557901488000)
++++ app/src/main/java/com/teamnumberb/pureair/favourite/FavouritesAdapter.java	(date 1558274007769)
+@@ -1,5 +1,6 @@
+ package com.teamnumberb.pureair.favourite;
+ 
++import android.content.Context;
+ import android.support.annotation.NonNull;
+ import android.support.v7.widget.RecyclerView;
+ import android.view.LayoutInflater;
+@@ -7,6 +8,7 @@
+ import android.view.ViewGroup;
+ import android.widget.TextView;
+ 
++import com.teamnumberb.pureair.HomeFragment;
+ import com.teamnumberb.pureair.R;
+ 
+ import java.util.ArrayList;
+@@ -14,11 +16,18 @@
+ 
+ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.FavoriteViewHolder> {
+     private List<Place> favourites = new ArrayList<>();
++    FavouritesManager favouritesManager;
++    private Context context;
++
++//    public FavouritesAdapter(Context c) {
++//        this.context = c;
++//    }
+ 
+     @NonNull
+     @Override
+     public FavoriteViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_favourite, viewGroup, false);
++        favouritesManager = new FavouritesManager(viewGroup.getContext());
+         return new FavoriteViewHolder(view);
+     }
+ 
+@@ -42,9 +51,17 @@
+             super(itemView);
+         }
+ 
+-        public void bind(Place place) {
++        public void bind(final Place place) {
+             TextView textView = itemView.findViewById(R.id.favouriteNameTextView);
+             textView.setText(place.getName());
++            View view = itemView.findViewById(R.id.deleteFavourite);
++            view.setOnClickListener(new View.OnClickListener() {
++                @Override
++                public void onClick(View v) {
++                    favouritesManager.deleteFavorite(place);
++                    updateFavourites(favouritesManager.getFavourites());
++                }
++            });
+         }
+     }
+ }

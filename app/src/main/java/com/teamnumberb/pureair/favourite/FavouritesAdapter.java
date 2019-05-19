@@ -14,11 +14,13 @@ import java.util.List;
 
 public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.FavoriteViewHolder> {
     private List<Place> favourites = new ArrayList<>();
+    FavouritesManager favouritesManager;
 
     @NonNull
     @Override
     public FavoriteViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_favourite, viewGroup, false);
+        favouritesManager = new FavouritesManager(viewGroup.getContext());
         return new FavoriteViewHolder(view);
     }
 
@@ -42,9 +44,17 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
             super(itemView);
         }
 
-        public void bind(Place place) {
+        public void bind(final Place place) {
             TextView textView = itemView.findViewById(R.id.favouriteNameTextView);
             textView.setText(place.getName());
+            View view = itemView.findViewById(R.id.deleteFavourite);
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    favouritesManager.deleteFavorite(place);
+                    updateFavourites(favouritesManager.getFavourites());
+                }
+            });
         }
     }
 }
