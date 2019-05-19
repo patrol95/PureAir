@@ -17,6 +17,7 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 
 public class AddFavouriteActivity extends AppCompatActivity {
     FavouritesManager favouritesManager;
@@ -31,6 +32,11 @@ public class AddFavouriteActivity extends AppCompatActivity {
         final IMapController mapController = mapView.getController();
         mapController.setZoom(15.0);
         mapController.setCenter(startPoint);
+        mapView.setMultiTouchControls(true);
+        mapView.setFlingEnabled(true);
+        RotationGestureOverlay rotationGestureOverlay = new RotationGestureOverlay(mapView);
+        rotationGestureOverlay.setEnabled(true);
+        mapView.getOverlays().add(rotationGestureOverlay);
         mapView.invalidate();
         mapView.getOverlayManager().add(new MapEventsOverlay(new MapEventsReceiver() {
             @Override
