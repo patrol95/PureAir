@@ -1,6 +1,9 @@
 package com.teamnumberb.pureair.favourite;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,10 +54,32 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    favouritesManager.deleteFavorite(place);
-                    updateFavourites(favouritesManager.getFavourites());
+                    askDelete(v.getContext(), place);
                 }
             });
+        }
+
+        private void askDelete(Context c, final Place place) {
+            new AlertDialog.Builder(c)
+                    .setTitle("Delete")
+                    .setMessage("Do you want to Delete")
+                    .setIcon(R.drawable.ic_delete)
+                    .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            favouritesManager.deleteFavorite(place);
+                            updateFavourites(favouritesManager.getFavourites());
+                            dialog.dismiss();
+                        }
+
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            dialog.dismiss();
+
+                        }
+                    })
+                    .show();
         }
     }
 }
