@@ -30,14 +30,14 @@ public class AirlyDataCollector extends PollutionDataCollector {
 
     AirlyDataCollector(Context c) {
         super(c);
-        InputStream inputStream = res.openRawResource(R.raw.airly_api_key);
-        Scanner s = new Scanner(inputStream).useDelimiter("\\A");
-        apiKey = s.hasNext() ? s.next() : "";
-
-        if(shouldRereadData) {
-            shouldRereadData = false;
-            retrieveData();
-        }
+//        InputStream inputStream = res.openRawResource(R.raw.airly_api_key);
+//        Scanner s = new Scanner(inputStream).useDelimiter("\\A");
+//        apiKey = s.hasNext() ? s.next() : "";
+//
+//        if(shouldRereadData) {
+//            shouldRereadData = false;
+//            retrieveData();
+//        }
     }
 
     protected void retrieveData() {

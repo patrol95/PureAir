@@ -63,6 +63,7 @@ public class AddFavouriteActivity extends AppCompatActivity {
         AlertDialog dlg = new AlertDialog.Builder(this)
                 .setTitle(R.string.enter_name)
                 .setView(nameEditText)
+                .setCancelable(false)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         String name = nameEditText.getText().toString();
