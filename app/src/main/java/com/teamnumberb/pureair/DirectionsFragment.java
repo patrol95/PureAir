@@ -211,7 +211,8 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         view.findViewById(R.id.fab_go_to_my_location).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               //mMapView.getController().setCenter((currentLocation.getLatitude()),(currentLocation.getLongitude()));
+                GeoPoint myLocation = new GeoPoint((currentLocation.getLatitude()),(currentLocation.getLongitude()));
+                mMapView.getController().setCenter(myLocation);
             }
         });
 
