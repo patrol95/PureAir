@@ -169,6 +169,14 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         mLocationOverlay.enableFollowLocation();
         mLocationOverlay.setOptionsMenuEnabled(true);
         mCompassOverlay.enableCompass();
+
+        view.findViewById(R.id.fab_navigation).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                return;
+            }
+        });
+
     }
 
     @Override
