@@ -21,9 +21,14 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 
 import org.osmdroid.api.IMapController;
+import org.osmdroid.bonuspack.location.GeocoderGraphHopper;
+import org.osmdroid.bonuspack.routing.GraphHopperRoadManager;
+import org.osmdroid.bonuspack.routing.Road;
+import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
@@ -32,7 +37,9 @@ import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 import org.osmdroid.views.overlay.Polygon;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static android.support.constraint.Constraints.TAG;
 
@@ -173,7 +180,25 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         view.findViewById(R.id.fab_navigation).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                return;
+                String apiKey = "23cf9256-7e3c-421f-89d3-45da3592ac09";
+
+                GeocoderGraphHopper geocoder = new GeocoderGraphHopper(Locale.getDefault(), apiKey);
+
+
+                //GeoPoint myLocation = new GeoPoint(mLocationOverlay.getMyLocation());
+                GeoPoint endPoint = new GeoPoint(51.11, 17.03);
+                ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
+                GeoPoint startPoint = new GeoPoint((currentLocation.getLatitude()),(currentLocation.getLongitude()));
+                waypoints.add(startPoint);
+                waypoints.add(endPoint);
+
+                GraphHopperRoadManager roadManager = new GraphHopperRoadManager(apiKey, false);
+                roadManager.addRequestOption("vehicle=bike");
+
+                Road road = roadManager.getRoad(waypoints);
+                Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
+                mMapView.getOverlays().add(roadOverlay);
+                mMapView.invalidate();
             }
         });
 
