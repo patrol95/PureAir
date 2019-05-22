@@ -37,9 +37,11 @@ import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 import org.osmdroid.views.overlay.Polygon;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Scanner;
 
 import static android.support.constraint.Constraints.TAG;
 
@@ -180,7 +182,11 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         view.findViewById(R.id.fab_navigation).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String apiKey = "23cf9256-7e3c-421f-89d3-45da3592ac09";
+                String apiKey;
+
+                InputStream inputStream = context.getResources().openRawResource(R.raw.graphhopper_api_key);
+                Scanner s = new Scanner(inputStream);
+                apiKey = s.hasNext() ? s.next() : "";
 
                 GeocoderGraphHopper geocoder = new GeocoderGraphHopper(Locale.getDefault(), apiKey);
 
@@ -199,6 +205,13 @@ public class DirectionsFragment extends Fragment implements LocationListener {
                 Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
                 mMapView.getOverlays().add(roadOverlay);
                 mMapView.invalidate();
+            }
+        });
+
+        view.findViewById(R.id.fab_go_to_my_location).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               //mMapView.getController().setCenter((currentLocation.getLatitude()),(currentLocation.getLongitude()));
             }
         });
 
