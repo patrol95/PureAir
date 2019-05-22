@@ -12,3 +12,4 @@
 /captures
 .externalNativeBuild
 app/src/main/res/raw/airly_api_key
+app/src/main/res/raw/graphhopper_api_key
