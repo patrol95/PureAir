@@ -27,6 +27,11 @@ public class FavouritesManager {
         saveData();
     }
 
+    public void deleteFavorite(Place place){
+        favourites.remove(place);
+        saveData();
+    }
+
     private void readData() {
         try {
             FileInputStream fis = context.openFileInput(fileName);
