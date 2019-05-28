@@ -1,7 +1,6 @@
 package com.teamnumberb.pureair;
 
 import android.content.Context;
-import android.content.res.Resources;
 
 import java.util.*;
 
@@ -11,11 +10,11 @@ public abstract class PollutionDataCollector {
     protected static OkHttpClient httpClient = new OkHttpClient();
 
     protected List<PollutionData> currentData = new Vector<>();
-    protected Resources res;
+    protected Context context;
     protected boolean isDataReady = false;
 
     PollutionDataCollector(Context context) {
-        res = context.getResources();
+        this.context = context;
     }
 
     public List<PollutionData> getPollutionData() {
@@ -24,6 +23,4 @@ public abstract class PollutionDataCollector {
         }
         return null;
     }
-
-    protected abstract void retrieveData();
 }

@@ -6,8 +6,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.*;
 
 import okhttp3.*;
@@ -23,24 +28,47 @@ class Location {
 }
 
 public class AirlyDataCollector extends PollutionDataCollector {
-    private static boolean shouldRereadData = true;
-
+    private static String lastReadTime = "airlyLastReadTime";
+    private static String lastReadData = "airlyLastReadData";
+    private static long rereadTime = 60 * 60 * 1000; //1h
     private String apiKey;
     private Map<Integer, Location> locations = new TreeMap<>();
 
     AirlyDataCollector(Context c) {
         super(c);
-        InputStream inputStream = res.openRawResource(R.raw.airly_api_key);
+        InputStream inputStream = context.getResources().openRawResource(R.raw.airly_api_key);
         Scanner s = new Scanner(inputStream).useDelimiter("\\A");
         apiKey = s.hasNext() ? s.next() : "";
 
-        if(shouldRereadData) {
-            shouldRereadData = false;
+        if (shouldRereadData()) {
             retrieveData();
+            asyncSaveNewData();
+        } else {
+            restoreSavedData();
         }
     }
 
-    protected void retrieveData() {
+    private boolean shouldRereadData() {
+        try {
+            FileInputStream fis = context.openFileInput(lastReadTime);
+            ObjectInputStream is = new ObjectInputStream(fis);
+            Long lastReadTime = (Long) is.readObject();
+            long currentTime = System.currentTimeMillis();
+            is.close();
+            fis.close();
+
+            return (currentTime - lastReadTime) > rereadTime;
+
+        } catch (FileNotFoundException e) {
+            return true;
+        } catch (Exception e) {
+            System.err.println("Unexpected exception while accessing data!");
+            e.printStackTrace();
+        }
+        return true;
+    }
+
+    private void retrieveData() {
         String url = getAllLocationsUrl();
         Request request = new Request.Builder().url(url).build();
         httpClient.newCall(request).enqueue(new Callback() {
@@ -65,7 +93,62 @@ public class AirlyDataCollector extends PollutionDataCollector {
                 }
             }
         });
+    }
 
+    private void asyncSaveNewData() {
+        new Runnable() {
+            @Override
+            public void run() {
+                while (!isDataReady) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+
+                try {
+                    FileOutputStream fos =
+                            context.openFileOutput(lastReadData, Context.MODE_PRIVATE);
+                    ObjectOutputStream os = new ObjectOutputStream(fos);
+                    os.writeObject(currentData);
+                    os.close();
+                    fos.close();
+
+                    fos = context.openFileOutput(lastReadTime, Context.MODE_PRIVATE);
+                    os = new ObjectOutputStream(fos);
+                    Long currentTime = System.currentTimeMillis();
+                    os.writeObject(currentTime);
+                    os.close();
+                    fos.close();
+                } catch (Exception e) {
+                    System.err.println("Unexpected exception while saving data!");
+                    e.printStackTrace();
+                }
+            }
+        }.run();
+    }
+
+    private void restoreSavedData() {
+        try {
+            FileInputStream fis = context.openFileInput(lastReadData);
+            ObjectInputStream is = new ObjectInputStream(fis);
+            currentData = (Vector<PollutionData>) is.readObject();
+            is.close();
+            fis.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("Data file not found?!");
+        } catch (Exception e) {
+            System.err.println("Unexpected exception while accessing data!");
+            e.printStackTrace();
+        }
+
+        if (currentData != null && !currentData.isEmpty()) {
+            isDataReady = true;
+        } else {
+            retrieveData();
+            asyncSaveNewData();
+        }
     }
 
     private String getAllLocationsUrl() {
@@ -117,7 +200,7 @@ public class AirlyDataCollector extends PollutionDataCollector {
                 try {
                     JSONObject responseData = new JSONObject(data);
                     parseSingleMeasurementJson(locationId, responseData);
-                    if(isLast) {
+                    if (isLast) {
                         isDataReady = true;
                     }
                 } catch (JSONException e) {

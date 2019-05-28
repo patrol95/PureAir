@@ -2,7 +2,9 @@ package com.teamnumberb.pureair;
 
 import org.osmdroid.util.GeoPoint;
 
-public class PollutionData {
+import java.io.Serializable;
+
+public class PollutionData implements Serializable {
     private static GeoPoint wroclawGeoPoint = new GeoPoint(51.10, 17.06);
 
     public GeoPoint location;
