@@ -31,13 +31,13 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavoriteViewHolder> 
         favouritesManager = new FavouritesManager(viewGroup.getContext());
         final FavoriteViewHolder favoriteViewHolder = new FavoriteViewHolder(view, new FavoriteViewHolder.FavouriteClick() {
             @Override
-            public void onDelete(ImageView imageView) {
-                askDelete(imageView.getContext(), favourites.get());
+            public void onDelete(ImageView imageView, int position) {
+                askDelete(imageView.getContext(), favourites.get(position));
             }
 
             @Override
-            public void onCard(View view) {
-
+            public void onText(View view, int position) {
+            //todo implement second interface
             }
         });
         return favoriteViewHolder;
@@ -46,13 +46,13 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavoriteViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull FavoriteViewHolder favoriteViewHolder, int i) {
         favoriteViewHolder.bind(favourites.get(i));
+
     }
 
     @Override
     public int getItemCount() {
         return favourites.size();
     }
-
 
     public void updateFavourites(List<Place> favourites) {
         this.favourites = favourites;
@@ -81,4 +81,6 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavoriteViewHolder> 
                 })
                 .show();
     }
+
+
 }

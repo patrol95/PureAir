@@ -71,8 +71,10 @@ public class HomeFragment extends Fragment {
     }
 
     public interface FavouriteSelectListener{
-        void selectLocation(GeoPoint geoPoint);
+        void selectLocation(GeoPoint geoPoint); //todo connect with rebuilt adapter
     }
+
+
 
     /*public void setFavouriteGeoPoint(){
         mCallback.selectLocation(GeoPoint geopoint);

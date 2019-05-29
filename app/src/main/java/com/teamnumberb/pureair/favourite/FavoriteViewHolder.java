@@ -1,9 +1,6 @@
 package com.teamnumberb.pureair.favourite;
 
-import android.content.Context;
-import android.content.DialogInterface;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
@@ -19,6 +16,7 @@ import java.util.List;
 public class FavoriteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
     private List<Place> favourites = new ArrayList<>();
     FavouritesManager favouritesManager;
+
     public FavouriteClick mListener;
     public TextView mTextView;
     public ImageView mImageView;
@@ -35,10 +33,11 @@ public class FavoriteViewHolder extends RecyclerView.ViewHolder implements View.
 
     @Override
     public void onClick(View v){
+        int itemPosition = this.getAdapterPosition();
         if(v instanceof ImageView)
-            mListener.onDelete((ImageView)v);
+            mListener.onDelete((ImageView)v, itemPosition);
         else
-            mListener.onCard(v);
+            mListener.onText(v, itemPosition);
     }
 
 
@@ -62,15 +61,45 @@ public class FavoriteViewHolder extends RecyclerView.ViewHolder implements View.
         });*/
     }
 
+    /*private void askDelete(Context c, final Place place) {
+        new AlertDialog.Builder(c)
+                .setTitle("Delete")
+                .setMessage("Do you want to Delete")
+                .setIcon(R.drawable.ic_delete)
+                .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        favouritesManager.deleteFavorite(place);
+                        updateFavourites(favouritesManager.getFavourites());
+                        dialog.dismiss();
+                    }
+
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        dialog.dismiss();
+
+                    }
+                })
+                .show();
+    }*/
+
+    public void updateFavourites(List<Place> favourites) {
+        this.favourites = favourites;
+        //notifyDataSetChanged();
+    }
+
     public GeoPoint getGeoPoint(final Place place){
         return new GeoPoint(place.getLatitude(), place.getLongitude());
     }
 
 
 
+
+
     public interface FavouriteClick{
-        public void onDelete(ImageView imageView);
-        public void onCard(View view);
+        public void onDelete(ImageView imageView, int position);
+        public void onText(View view, int position);
     }
 }
 
