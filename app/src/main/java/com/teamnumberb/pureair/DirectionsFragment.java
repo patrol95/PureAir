@@ -191,6 +191,7 @@ public class DirectionsFragment extends Fragment implements LocationListener {
 
                 Road road = roadManager.getRoad(waypoints);
                 Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
+                roadOverlay.setWidth(20);
                 mMapView.getOverlays().add(roadOverlay);
                 mMapView.invalidate();
             }
