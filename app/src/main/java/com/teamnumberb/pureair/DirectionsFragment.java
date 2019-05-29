@@ -25,9 +25,12 @@ import org.osmdroid.bonuspack.location.GeocoderGraphHopper;
 import org.osmdroid.bonuspack.routing.GraphHopperRoadManager;
 import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.bonuspack.routing.RoadManager;
+import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.MapEventsOverlay;
+import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
@@ -39,6 +42,7 @@ import org.osmdroid.views.overlay.Polygon;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
@@ -83,16 +87,16 @@ class PollutionDataListener implements Runnable {
 
     private int getColorCodeOfPmValue(double pm25) {
         if (pm25 < 12)
-            return 0xFF00b050;
+            return 0x7700b050;
         if (pm25 < 36)
-            return 0xFF92d050;
+            return 0x7792d050;
         if (pm25 < 60)
-            return 0xFFffff00;
+            return 0x77ffff00;
         if (pm25 < 85)
-            return 0xFFff7000;
+            return 0x77ff7000;
         if (pm25 < 120)
-            return 0xFFff0000;
-        return 0xFFc00000;
+            return 0x77ff0000;
+        return 0x77c00000;
     }
 }
 
@@ -110,6 +114,8 @@ public class DirectionsFragment extends Fragment implements LocationListener {
     private LocationManager lm;
     private Location currentLocation = null;
     private PollutionDataCollector airlyData;
+    private GeoPoint endPoint = new GeoPoint(51.11, 17.03);
+    private Polyline roadOverlay;
 
     @Override
     public void onAttach(Context context) {
@@ -133,7 +139,7 @@ public class DirectionsFragment extends Fragment implements LocationListener {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         //super.onViewCreated(view, savedInstanceState);
-
+        final IMapController mapController = mMapView.getController();
         final Context context = this.getActivity();
         final DisplayMetrics dm = context.getResources().getDisplayMetrics();
 
@@ -165,11 +171,16 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         mRotationGestureOverlay = new RotationGestureOverlay(mMapView);
         mRotationGestureOverlay.setEnabled(true);
         mMapView.getOverlays().add(mRotationGestureOverlay);
+        final Marker marker = new Marker(mMapView);
 
         view.findViewById(R.id.fab_navigation).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String apiKey;
+
+                if(roadOverlay!=null)
+                    mMapView.getOverlays().remove(roadOverlay);
+
 
                 InputStream inputStream = context.getResources().openRawResource(R.raw.graphhopper_api_key);
                 Scanner s = new Scanner(inputStream);
@@ -179,8 +190,7 @@ public class DirectionsFragment extends Fragment implements LocationListener {
 
 
                 //GeoPoint myLocation = new GeoPoint(mLocationOverlay.getMyLocation());
-                GeoPoint endPoint = new GeoPoint(51.11, 17.03);
-                //GeoPoint endPoint = mySelection;
+                //GeoPoint endPoint = new GeoPoint(51.11, 17.03);
                 ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
                 GeoPoint startPoint = new GeoPoint((currentLocation.getLatitude()),(currentLocation.getLongitude()));
                 waypoints.add(startPoint);
@@ -190,10 +200,15 @@ public class DirectionsFragment extends Fragment implements LocationListener {
                 roadManager.addRequestOption("vehicle=bike");
 
                 Road road = roadManager.getRoad(waypoints);
-                Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
+                roadOverlay = RoadManager.buildRoadOverlay(road);
                 roadOverlay.setWidth(20);
                 mMapView.getOverlays().add(roadOverlay);
                 mMapView.invalidate();
+
+
+
+
+
             }
         });
 
@@ -204,6 +219,23 @@ public class DirectionsFragment extends Fragment implements LocationListener {
                 mMapView.getController().setCenter(myLocation);
             }
         });
+        mMapView.getOverlayManager().add(new MapEventsOverlay(new MapEventsReceiver() {
+            @Override
+            public boolean singleTapConfirmedHelper(GeoPoint p) {
+
+                marker.setPosition(p);
+                marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+                mMapView.getOverlays().add(marker);
+                mapController.animateTo(p);
+                endPoint = p;
+                return true;
+            }
+
+            @Override
+            public boolean longPressHelper(GeoPoint p) {
+                return false;
+            }
+        }));
 
     }
 
@@ -277,4 +309,5 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         PollutionDataListener t = new PollutionDataListener(mMapView, airlyData);
         t.run();
     }
+
 }
