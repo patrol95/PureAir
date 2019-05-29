@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -18,13 +19,15 @@ import android.view.MenuItem;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.util.GeoPoint;
 
-public class MainActivity extends AppCompatActivity implements HomeFragment.FavouriteSelectListener{
+public class MainActivity extends AppCompatActivity implements HomeFragment.FavouriteSelectListener {
 
 
     DirectionsFragment directionsFragment;
     HomeFragment homeFragment;
-    private static final String DIR_TAG = "dir";
+    SettingsFragment settingsFragment;
+    private static final String DIRECTIONS_TAG = "directions";
     private static final String HOME_TAG = "home";
+    private static final String SETTINGS_TAG = "settings";
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -34,22 +37,28 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.Favo
             FragmentManager fragmentManager = getSupportFragmentManager();
             switch (item.getItemId()) {
                 case R.id.navigation_settings:
-                    Fragment settingsFragment = fragmentManager.findFragmentByTag("settings");
-                    settingsFragment = settingsFragment != null ? settingsFragment : SettingsFragment.newInstance();
+                    /*Fragment settingsFragment = fragmentManager.findFragmentByTag("settings");
+                    settingsFragment = settingsFragment != null ? settingsFragment : SettingsFragment.newInstance();*/
+                    if (settingsFragment == null)
+                        settingsFragment = new SettingsFragment();
                     fragmentManager.beginTransaction()
                             .replace(R.id.fragment_container, settingsFragment, "settings")
                             .commitNow();
                     return true;
                 case R.id.navigation_home:
-                    Fragment homeFragment = fragmentManager.findFragmentByTag("home");
-                    homeFragment = homeFragment != null ? homeFragment : HomeFragment.newInstance();
+                    /*Fragment homeFragment = fragmentManager.findFragmentByTag("home");
+                    homeFragment = homeFragment != null ? homeFragment : HomeFragment.newInstance();*/
+                    if (homeFragment == null)
+                        homeFragment = new HomeFragment();
                     fragmentManager.beginTransaction()
                             .replace(R.id.fragment_container, homeFragment, "home")
                             .commitNow();
                     return true;
                 case R.id.navigation_directions:
-                    Fragment directionsFragment = fragmentManager.findFragmentByTag("directions");
-                    directionsFragment = directionsFragment != null ? directionsFragment : DirectionsFragment.newInstance();
+                    /*Fragment directionsFragment = fragmentManager.findFragmentByTag("directions");
+                    directionsFragment = directionsFragment != null ? directionsFragment : DirectionsFragment.newInstance();*/
+                    if (directionsFragment == null)
+                        directionsFragment = new DirectionsFragment();
                     fragmentManager.beginTransaction()
                             .replace(R.id.fragment_container, directionsFragment, "directions")
                             .commitNow();
@@ -75,18 +84,14 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.Favo
         Configuration.getInstance().setUserAgentValue(BuildConfig.APPLICATION_ID);
 
 
-
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         navigation.setSelectedItemId(R.id.navigation_home);
 
 
-
-
-        if(!hasPermissions(this, PERMISSIONS)){
+        if (!hasPermissions(this, PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
         }
-
 
 
     }
@@ -112,8 +117,17 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.Favo
     };
 
     @Override
-    public void selectLocation(GeoPoint geoPoint){
+    public void selectLocation(GeoPoint geoPoint) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        if (directionsFragment == null)
+            directionsFragment = new DirectionsFragment();
+        else
+            directionsFragment = (DirectionsFragment) fragmentManager.findFragmentByTag(DIRECTIONS_TAG);
         directionsFragment.navigateFromFavourites(geoPoint);
+        fragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, directionsFragment, "directions").commitNowAllowingStateLoss();
+
+
     }
 }
 

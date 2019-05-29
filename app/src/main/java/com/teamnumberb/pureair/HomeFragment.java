@@ -1,5 +1,6 @@
 package com.teamnumberb.pureair;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -56,7 +57,24 @@ public class HomeFragment extends Fragment {
         favouritesAdapter.updateFavourites(favouritesManager.getFavourites());
     }
 
+
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof FavouriteSelectListener) {
+            mCallback = (FavouriteSelectListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnGreenFragmentListener");
+        }
+    }
+
     public interface FavouriteSelectListener{
         void selectLocation(GeoPoint geoPoint);
     }
+
+    /*public void setFavouriteGeoPoint(){
+        mCallback.selectLocation(GeoPoint geopoint);
+    }*/
 }
