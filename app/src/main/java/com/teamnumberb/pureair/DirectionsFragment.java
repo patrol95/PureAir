@@ -146,8 +146,7 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         mScaleBarOverlay.setCentred(true);
         mScaleBarOverlay.setScaleBarOffset(dm.widthPixels / 2, 10);
 
-        mRotationGestureOverlay = new RotationGestureOverlay(mMapView);
-        mRotationGestureOverlay.setEnabled(true);
+
 
         mMapView.getController().setZoom(15);
         mMapView.setTilesScaledToDpi(true);
@@ -163,6 +162,10 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         mLocationOverlay.setOptionsMenuEnabled(true);
         mCompassOverlay.enableCompass();
 
+        mRotationGestureOverlay = new RotationGestureOverlay(mMapView);
+        mRotationGestureOverlay.setEnabled(true);
+        mMapView.getOverlays().add(mRotationGestureOverlay);
+
         view.findViewById(R.id.fab_navigation).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -177,6 +180,7 @@ public class DirectionsFragment extends Fragment implements LocationListener {
 
                 //GeoPoint myLocation = new GeoPoint(mLocationOverlay.getMyLocation());
                 GeoPoint endPoint = new GeoPoint(51.11, 17.03);
+                //GeoPoint endPoint = mySelection;
                 ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
                 GeoPoint startPoint = new GeoPoint((currentLocation.getLatitude()),(currentLocation.getLongitude()));
                 waypoints.add(startPoint);
