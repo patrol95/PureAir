@@ -16,8 +16,15 @@ import android.view.MenuItem;
 
 
 import org.osmdroid.config.Configuration;
+import org.osmdroid.util.GeoPoint;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements HomeFragment.FavouriteSelectListener{
+
+
+    DirectionsFragment directionsFragment;
+    HomeFragment homeFragment;
+    private static final String DIR_TAG = "dir";
+    private static final String HOME_TAG = "home";
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -103,4 +110,11 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE,
     };
+
+    @Override
+    public void selectLocation(GeoPoint geoPoint){
+        directionsFragment.navigateFromFavourites(geoPoint);
+    }
 }
+
+

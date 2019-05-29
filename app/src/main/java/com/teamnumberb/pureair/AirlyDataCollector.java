@@ -5,6 +5,7 @@ import android.content.Context;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.osmdroid.util.GeoPoint;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -24,6 +25,30 @@ class Location {
     public Location(double latitude, double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
+    }
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public GeoPoint getLocationAsGeoPoint(){
+        return new GeoPoint(getLatitude(), getLongitude());
+    }
+
+    public void setGeoPointAsLocation(GeoPoint geoPoint){
+        this.latitude = geoPoint.getLatitude();
+        this.longitude = geoPoint.getLongitude();
     }
 }
 

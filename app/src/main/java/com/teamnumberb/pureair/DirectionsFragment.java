@@ -118,6 +118,7 @@ public class DirectionsFragment extends Fragment implements LocationListener {
     private GeoPoint endPoint = null;
     private GeoPoint defaultWroclawPoint = new GeoPoint(51.10, 17.06);
     private Polyline roadOverlay = null;
+    //private GeoPoint favoriteLocation =
 
     @Override
     public void onAttach(Context context) {
@@ -144,6 +145,7 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         final IMapController mapController = mMapView.getController();
         final Context context = this.getActivity();
         final DisplayMetrics dm = context.getResources().getDisplayMetrics();
+        final Marker marker = new Marker(mMapView);
 
         this.mCompassOverlay = new CompassOverlay(context, new InternalCompassOrientationProvider(context),
                 mMapView);
@@ -155,8 +157,8 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         mScaleBarOverlay.setScaleBarOffset(dm.widthPixels / 2, 10);
 
 
-        mMapView.getController().setZoom(15.0);
-        mMapView.getController().setCenter(defaultWroclawPoint);
+        mapController.setZoom(15.0);
+        mapController.setCenter(defaultWroclawPoint);
         mMapView.setTilesScaledToDpi(true);
         mMapView.setMultiTouchControls(true);
         mMapView.setFlingEnabled(true);
@@ -170,17 +172,19 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         mCompassOverlay.enableCompass();
 
 
+
         mRotationGestureOverlay = new RotationGestureOverlay(mMapView);
         mRotationGestureOverlay.setEnabled(true);
         mMapView.getOverlays().add(mRotationGestureOverlay);
-        final Marker marker = new Marker(mMapView);
+
+
 
         view.findViewById(R.id.fab_navigation).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (currentLocation != null) {
 
-                    if(endPoint == null)
+                    if (endPoint == null)
                         Toast.makeText(getContext(), "Please select your destination", Toast.LENGTH_LONG).show();
                     else {
                         String apiKey;
@@ -208,13 +212,27 @@ public class DirectionsFragment extends Fragment implements LocationListener {
                         Road road = roadManager.getRoad(waypoints);
                         roadOverlay = RoadManager.buildRoadOverlay(road);
                         roadOverlay.setWidth(20);
+                        GeoPoint midPoint = new GeoPoint((currentLocation.getLatitude()+endPoint.getLatitude())/2,
+                                (currentLocation.getLongitude()+endPoint.getLongitude())/2);
+                        mapController.animateTo(midPoint);
+                        double distance = roadOverlay.getDistance();
+
+                        if(distance < 3000)
+                            mapController.setZoom(15.0);
+                        else if (distance <9000)
+                            mapController.setZoom(13.0);
+                        else
+                            mapController.setZoom(11.0);
+
+
                         mMapView.getOverlays().add(roadOverlay);
                         mMapView.invalidate();
                     }
-                }
-
-
+                } else
+                    Toast.makeText(getContext(), "Current location unavailable", Toast.LENGTH_LONG).show();
             }
+
+
         });
 
         view.findViewById(R.id.fab_go_to_my_location).setOnClickListener(new View.OnClickListener() {
@@ -222,9 +240,9 @@ public class DirectionsFragment extends Fragment implements LocationListener {
             public void onClick(View v) {
                 if (currentLocation != null) {
                     GeoPoint myLocation = new GeoPoint((currentLocation.getLatitude()), (currentLocation.getLongitude()));
-                    mMapView.getController().setCenter(myLocation);
-                }
-                else
+                    mapController.animateTo(myLocation);
+                    mapController.setZoom(15.0);
+                } else
                     Toast.makeText(getContext(), "Current location unavailable", Toast.LENGTH_LONG).show();
                 return;
             }
@@ -247,6 +265,63 @@ public class DirectionsFragment extends Fragment implements LocationListener {
             }
         }));
 
+    }
+
+    public void navigateFromFavourites(GeoPoint geoPoint){
+
+        final IMapController mapController = mMapView.getController();
+        final Context context = this.getActivity();
+        final Marker marker = new Marker(mMapView);
+
+        endPoint = geoPoint;
+        String apiKey;
+        while (currentLocation==null)
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        if (roadOverlay != null)
+            mMapView.getOverlays().remove(roadOverlay);
+
+
+        InputStream inputStream = getContext().getResources().openRawResource(R.raw.graphhopper_api_key);
+        Scanner s = new Scanner(inputStream);
+        apiKey = s.hasNext() ? s.next() : "";
+
+        GeocoderGraphHopper geocoder = new GeocoderGraphHopper(Locale.getDefault(), apiKey);
+
+
+        //GeoPoint myLocation = new GeoPoint(mLocationOverlay.getMyLocation());
+        //GeoPoint endPoint = new GeoPoint(51.11, 17.03);
+        ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
+        GeoPoint startPoint = new GeoPoint((currentLocation.getLatitude()), (currentLocation.getLongitude()));
+        waypoints.add(startPoint);
+        waypoints.add(endPoint);
+
+        GraphHopperRoadManager roadManager = new GraphHopperRoadManager(apiKey, false);
+        roadManager.addRequestOption("vehicle=bike");
+        Road road = roadManager.getRoad(waypoints);
+        roadOverlay = RoadManager.buildRoadOverlay(road);
+        roadOverlay.setWidth(20);
+        GeoPoint midPoint = new GeoPoint((currentLocation.getLatitude()+endPoint.getLatitude())/2,
+                (currentLocation.getLongitude()+endPoint.getLongitude())/2);
+        mapController.animateTo(midPoint);
+        double distance = roadOverlay.getDistance();
+
+        if(distance < 3000)
+            mapController.setZoom(15.0);
+        else if (distance <9000)
+            mapController.setZoom(13.0);
+        else
+            mapController.setZoom(11.0);
+        marker.setPosition(geoPoint);
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+        mMapView.getOverlays().add(marker);
+        mapController.animateTo(geoPoint);
+
+        mMapView.getOverlays().add(roadOverlay);
+        mMapView.invalidate();
     }
 
     @Override

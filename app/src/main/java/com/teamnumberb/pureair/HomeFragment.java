@@ -15,6 +15,8 @@ import com.teamnumberb.pureair.favourite.AddFavouriteActivity;
 import com.teamnumberb.pureair.favourite.FavouritesAdapter;
 import com.teamnumberb.pureair.favourite.FavouritesManager;
 
+import org.osmdroid.util.GeoPoint;
+
 public class HomeFragment extends Fragment {
 
     public static HomeFragment newInstance() {
@@ -23,7 +25,7 @@ public class HomeFragment extends Fragment {
 
     private FavouritesManager favouritesManager;
     private FavouritesAdapter favouritesAdapter = new FavouritesAdapter();
-
+    private FavouriteSelectListener mCallback;
 
     @Nullable
     @Override
@@ -52,5 +54,9 @@ public class HomeFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         favouritesAdapter.updateFavourites(favouritesManager.getFavourites());
+    }
+
+    public interface FavouriteSelectListener{
+        void selectLocation(GeoPoint geoPoint);
     }
 }
