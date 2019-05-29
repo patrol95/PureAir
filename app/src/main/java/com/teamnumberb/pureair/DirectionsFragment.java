@@ -19,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.location.GeocoderGraphHopper;
@@ -112,10 +113,11 @@ public class DirectionsFragment extends Fragment implements LocationListener {
     private ScaleBarOverlay mScaleBarOverlay;
     private RotationGestureOverlay mRotationGestureOverlay;
     private LocationManager lm;
-    private Location currentLocation = null;
+    private Location currentLocation;
     private PollutionDataCollector airlyData;
-    private GeoPoint endPoint = new GeoPoint(51.11, 17.03);
-    private Polyline roadOverlay;
+    private GeoPoint endPoint = null;
+    private GeoPoint defaultWroclawPoint = new GeoPoint(51.10, 17.06);
+    private Polyline roadOverlay = null;
 
     @Override
     public void onAttach(Context context) {
@@ -153,10 +155,9 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         mScaleBarOverlay.setScaleBarOffset(dm.widthPixels / 2, 10);
 
 
-
-        mMapView.getController().setZoom(15);
+        mMapView.getController().setZoom(15.0);
+        mMapView.getController().setCenter(defaultWroclawPoint);
         mMapView.setTilesScaledToDpi(true);
-        mMapView.setBuiltInZoomControls(true);
         mMapView.setMultiTouchControls(true);
         mMapView.setFlingEnabled(true);
         mMapView.getOverlays().add(this.mLocationOverlay);
@@ -168,6 +169,7 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         mLocationOverlay.setOptionsMenuEnabled(true);
         mCompassOverlay.enableCompass();
 
+
         mRotationGestureOverlay = new RotationGestureOverlay(mMapView);
         mRotationGestureOverlay.setEnabled(true);
         mMapView.getOverlays().add(mRotationGestureOverlay);
@@ -176,37 +178,40 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         view.findViewById(R.id.fab_navigation).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String apiKey;
+                if (currentLocation != null) {
 
-                if(roadOverlay!=null)
-                    mMapView.getOverlays().remove(roadOverlay);
+                    if(endPoint == null)
+                        Toast.makeText(getContext(), "Please select your destination", Toast.LENGTH_LONG).show();
+                    else {
+                        String apiKey;
 
-
-                InputStream inputStream = context.getResources().openRawResource(R.raw.graphhopper_api_key);
-                Scanner s = new Scanner(inputStream);
-                apiKey = s.hasNext() ? s.next() : "";
-
-                GeocoderGraphHopper geocoder = new GeocoderGraphHopper(Locale.getDefault(), apiKey);
+                        if (roadOverlay != null)
+                            mMapView.getOverlays().remove(roadOverlay);
 
 
-                //GeoPoint myLocation = new GeoPoint(mLocationOverlay.getMyLocation());
-                //GeoPoint endPoint = new GeoPoint(51.11, 17.03);
-                ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
-                GeoPoint startPoint = new GeoPoint((currentLocation.getLatitude()),(currentLocation.getLongitude()));
-                waypoints.add(startPoint);
-                waypoints.add(endPoint);
+                        InputStream inputStream = context.getResources().openRawResource(R.raw.graphhopper_api_key);
+                        Scanner s = new Scanner(inputStream);
+                        apiKey = s.hasNext() ? s.next() : "";
 
-                GraphHopperRoadManager roadManager = new GraphHopperRoadManager(apiKey, false);
-                roadManager.addRequestOption("vehicle=bike");
-
-                Road road = roadManager.getRoad(waypoints);
-                roadOverlay = RoadManager.buildRoadOverlay(road);
-                roadOverlay.setWidth(20);
-                mMapView.getOverlays().add(roadOverlay);
-                mMapView.invalidate();
+                        GeocoderGraphHopper geocoder = new GeocoderGraphHopper(Locale.getDefault(), apiKey);
 
 
+                        //GeoPoint myLocation = new GeoPoint(mLocationOverlay.getMyLocation());
+                        //GeoPoint endPoint = new GeoPoint(51.11, 17.03);
+                        ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
+                        GeoPoint startPoint = new GeoPoint((currentLocation.getLatitude()), (currentLocation.getLongitude()));
+                        waypoints.add(startPoint);
+                        waypoints.add(endPoint);
 
+                        GraphHopperRoadManager roadManager = new GraphHopperRoadManager(apiKey, false);
+                        roadManager.addRequestOption("vehicle=bike");
+                        Road road = roadManager.getRoad(waypoints);
+                        roadOverlay = RoadManager.buildRoadOverlay(road);
+                        roadOverlay.setWidth(20);
+                        mMapView.getOverlays().add(roadOverlay);
+                        mMapView.invalidate();
+                    }
+                }
 
 
             }
@@ -215,8 +220,13 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         view.findViewById(R.id.fab_go_to_my_location).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GeoPoint myLocation = new GeoPoint((currentLocation.getLatitude()),(currentLocation.getLongitude()));
-                mMapView.getController().setCenter(myLocation);
+                if (currentLocation != null) {
+                    GeoPoint myLocation = new GeoPoint((currentLocation.getLatitude()), (currentLocation.getLongitude()));
+                    mMapView.getController().setCenter(myLocation);
+                }
+                else
+                    Toast.makeText(getContext(), "Current location unavailable", Toast.LENGTH_LONG).show();
+                return;
             }
         });
         mMapView.getOverlayManager().add(new MapEventsOverlay(new MapEventsReceiver() {
