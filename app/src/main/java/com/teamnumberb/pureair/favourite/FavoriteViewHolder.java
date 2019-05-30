@@ -17,11 +17,11 @@ public class FavoriteViewHolder extends RecyclerView.ViewHolder implements View.
     private List<Place> favourites = new ArrayList<>();
     FavouritesManager favouritesManager;
 
-    public FavouriteClick mListener;
+    public IFavoriteViewHolderClick mListener;
     public TextView mTextView;
     public ImageView mImageView;
 
-    public FavoriteViewHolder(@NonNull View itemView, FavouriteClick listener) {
+    public FavoriteViewHolder(@NonNull View itemView, IFavoriteViewHolderClick listener) {
         super(itemView);
         mListener = listener;
         mTextView = itemView.findViewById(R.id.favouriteNameTextView);
@@ -97,7 +97,7 @@ public class FavoriteViewHolder extends RecyclerView.ViewHolder implements View.
 
 
 
-    public interface FavouriteClick{
+    public interface IFavoriteViewHolderClick {
         public void onDelete(ImageView imageView, int position);
         public void onText(View view, int position);
     }

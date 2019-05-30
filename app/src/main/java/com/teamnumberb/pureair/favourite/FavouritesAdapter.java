@@ -9,10 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.teamnumberb.pureair.DirectionsFragment;
-import com.teamnumberb.pureair.HomeFragment;
 import com.teamnumberb.pureair.R;
 
 import org.osmdroid.util.GeoPoint;
@@ -23,13 +20,13 @@ import java.util.List;
 public class FavouritesAdapter extends RecyclerView.Adapter<FavoriteViewHolder> {
     private List<Place> favourites = new ArrayList<>();
     FavouritesManager favouritesManager;
-
+    IFavoriteAdapterClick mCallback;
     @NonNull
     @Override
     public FavoriteViewHolder onCreateViewHolder(@NonNull final ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_favourite, viewGroup, false);
         favouritesManager = new FavouritesManager(viewGroup.getContext());
-        final FavoriteViewHolder favoriteViewHolder = new FavoriteViewHolder(view, new FavoriteViewHolder.FavouriteClick() {
+        final FavoriteViewHolder favoriteViewHolder = new FavoriteViewHolder(view, new FavoriteViewHolder.IFavoriteViewHolderClick() {
             @Override
             public void onDelete(ImageView imageView, int position) {
                 askDelete(imageView.getContext(), favourites.get(position));
@@ -38,6 +35,8 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavoriteViewHolder> 
             @Override
             public void onText(View view, int position) {
             //todo implement second interface
+                GeoPoint favouriteGeoPoint = new GeoPoint(favourites.get(position).getLatitude(), favourites.get(position).getLongitude());
+                mCallback.favGeoPoint(favouriteGeoPoint);
             }
         });
         return favoriteViewHolder;
@@ -82,5 +81,8 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavoriteViewHolder> 
                 .show();
     }
 
+    public interface IFavoriteAdapterClick{
+        void favGeoPoint (GeoPoint geoPoint);
+    }
 
 }

@@ -66,7 +66,7 @@ public class HomeFragment extends Fragment {
             mCallback = (FavouriteSelectListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnGreenFragmentListener");
+                    + " must implement FavouriteSelectListener");
         }
     }
 
