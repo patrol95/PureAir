@@ -26,7 +26,7 @@ public class HomeFragment extends Fragment {
 
     private FavouritesManager favouritesManager;
     private FavouritesAdapter favouritesAdapter = new FavouritesAdapter();
-    private FavouriteSelectListener mCallback;
+    private IFavouriteSelectListener mCallback;
 
     @Nullable
     @Override
@@ -62,21 +62,21 @@ public class HomeFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof FavouriteSelectListener) {
-            mCallback = (FavouriteSelectListener) context;
+        if (context instanceof IFavouriteSelectListener) {
+            mCallback = (IFavouriteSelectListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement FavouriteSelectListener");
         }
     }
 
-    public interface FavouriteSelectListener{
+    public interface IFavouriteSelectListener{
         void selectLocation(GeoPoint geoPoint); //todo connect with rebuilt adapter
     }
 
 
 
     /*public void setFavouriteGeoPoint(){
-        mCallback.selectLocation(GeoPoint geopoint);
+        mCallback.selectLocation();
     }*/
 }

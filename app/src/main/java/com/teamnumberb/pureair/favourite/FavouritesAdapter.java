@@ -19,27 +19,29 @@ import java.util.List;
 
 public class FavouritesAdapter extends RecyclerView.Adapter<FavoriteViewHolder> {
     private List<Place> favourites = new ArrayList<>();
-    FavouritesManager favouritesManager;
-    IFavoriteAdapterClick mCallback;
+    private FavouritesManager favouritesManager;
+    public IFavoriteAdapterClick mCallback;
     @NonNull
     @Override
     public FavoriteViewHolder onCreateViewHolder(@NonNull final ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_favourite, viewGroup, false);
         favouritesManager = new FavouritesManager(viewGroup.getContext());
-        final FavoriteViewHolder favoriteViewHolder = new FavoriteViewHolder(view, new FavoriteViewHolder.IFavoriteViewHolderClick() {
+
+        return new FavoriteViewHolder(view, new FavoriteViewHolder.IFavoriteViewHolderClick() {
             @Override
             public void onDelete(ImageView imageView, int position) {
                 askDelete(imageView.getContext(), favourites.get(position));
             }
 
             @Override
-            public void onText(View view, int position) {
+            public void onText(View view1, int position) {
             //todo implement second interface
-                GeoPoint favouriteGeoPoint = new GeoPoint(favourites.get(position).getLatitude(), favourites.get(position).getLongitude());
+                GeoPoint favouriteGeoPoint = new GeoPoint(favourites.get(position).getLatitude(),
+                        favourites.get(position).getLongitude());
+                mCallback = (IFavoriteAdapterClick) viewGroup.getContext();
                 mCallback.favGeoPoint(favouriteGeoPoint);
             }
         });
-        return favoriteViewHolder;
     }
 
     @Override

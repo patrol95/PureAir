@@ -16,10 +16,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 
+import com.teamnumberb.pureair.favourite.FavouritesAdapter;
+
 import org.osmdroid.config.Configuration;
 import org.osmdroid.util.GeoPoint;
 
-public class MainActivity extends AppCompatActivity implements HomeFragment.FavouriteSelectListener {
+public class MainActivity extends AppCompatActivity implements HomeFragment.IFavouriteSelectListener, FavouritesAdapter.IFavoriteAdapterClick {
 
 
     DirectionsFragment directionsFragment;
@@ -42,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.Favo
                     if (settingsFragment == null)
                         settingsFragment = new SettingsFragment();
                     fragmentManager.beginTransaction()
-                            .replace(R.id.fragment_container, settingsFragment, "settings")
+                            .replace(R.id.fragment_container, settingsFragment, SETTINGS_TAG)
                             .commitNow();
                     return true;
                 case R.id.navigation_home:
@@ -51,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.Favo
                     if (homeFragment == null)
                         homeFragment = new HomeFragment();
                     fragmentManager.beginTransaction()
-                            .replace(R.id.fragment_container, homeFragment, "home")
+                            .replace(R.id.fragment_container, homeFragment, HOME_TAG)
                             .commitNow();
                     return true;
                 case R.id.navigation_directions:
@@ -60,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.Favo
                     if (directionsFragment == null)
                         directionsFragment = new DirectionsFragment();
                     fragmentManager.beginTransaction()
-                            .replace(R.id.fragment_container, directionsFragment, "directions")
+                            .replace(R.id.fragment_container, directionsFragment, DIRECTIONS_TAG)
                             .commitNow();
                     return true;
             }
@@ -119,15 +121,23 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.Favo
     @Override
     public void selectLocation(GeoPoint geoPoint) {
         FragmentManager fragmentManager = getSupportFragmentManager();
+
         if (directionsFragment == null)
             directionsFragment = new DirectionsFragment();
-        else
-            directionsFragment = (DirectionsFragment) fragmentManager.findFragmentByTag(DIRECTIONS_TAG);
+
         directionsFragment.navigateFromFavourites(geoPoint);
+
+        BottomNavigationView navigation = findViewById(R.id.navigation);
+        navigation.setSelectedItemId(R.id.navigation_directions);
         fragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, directionsFragment, "directions").commitNowAllowingStateLoss();
+                .replace(R.id.fragment_container, directionsFragment, DIRECTIONS_TAG)
+                .commitNow();
+    }
 
 
+    @Override
+    public void favGeoPoint(GeoPoint geoPoint) {
+        selectLocation(geoPoint);
     }
 }
 

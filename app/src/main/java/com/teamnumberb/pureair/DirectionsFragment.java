@@ -1,24 +1,16 @@
 package com.teamnumberb.pureair;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import org.osmdroid.api.IMapController;
@@ -27,11 +19,11 @@ import org.osmdroid.bonuspack.routing.GraphHopperRoadManager;
 import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.events.MapEventsReceiver;
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
@@ -39,16 +31,12 @@ import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
-import org.osmdroid.views.overlay.Polygon;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
-
-import static android.support.constraint.Constraints.TAG;
 
 class PollutionDataListener implements Runnable {
     private MapView mapView;
@@ -116,9 +104,9 @@ public class DirectionsFragment extends Fragment implements LocationListener {
     private Location currentLocation;
     private PollutionDataCollector airlyData;
     private GeoPoint endPoint = null;
+    private GeoPoint favouritePoint = null;
     private GeoPoint defaultWroclawPoint = new GeoPoint(51.10, 17.06);
     private Polyline roadOverlay = null;
-    //private GeoPoint favoriteLocation =
 
     @Override
     public void onAttach(Context context) {
@@ -141,11 +129,15 @@ public class DirectionsFragment extends Fragment implements LocationListener {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        //super.onViewCreated(view, savedInstanceState);
+        super.onViewCreated(view, savedInstanceState);
         final IMapController mapController = mMapView.getController();
         final Context context = this.getActivity();
         final DisplayMetrics dm = context.getResources().getDisplayMetrics();
         final Marker marker = new Marker(mMapView);
+
+        InputStream inputStream = context.getResources().openRawResource(R.raw.graphhopper_api_key);
+        Scanner s = new Scanner(inputStream);
+        final String apiKey = s.hasNext() ? s.next() : "";
 
         this.mCompassOverlay = new CompassOverlay(context, new InternalCompassOrientationProvider(context),
                 mMapView);
@@ -177,31 +169,31 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         mRotationGestureOverlay.setEnabled(true);
         mMapView.getOverlays().add(mRotationGestureOverlay);
 
+        if(favouritePoint != null){
+            marker.setPosition(favouritePoint);
+            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+            mMapView.getOverlays().add(marker);
+            mapController.animateTo(favouritePoint);
+            endPoint = favouritePoint;
+        }
+
 
 
         view.findViewById(R.id.fab_navigation).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (currentLocation != null) {
-
                     if (endPoint == null)
                         Toast.makeText(getContext(), "Please select your destination", Toast.LENGTH_LONG).show();
                     else {
-                        String apiKey;
+
 
                         if (roadOverlay != null)
                             mMapView.getOverlays().remove(roadOverlay);
 
 
-                        InputStream inputStream = context.getResources().openRawResource(R.raw.graphhopper_api_key);
-                        Scanner s = new Scanner(inputStream);
-                        apiKey = s.hasNext() ? s.next() : "";
 
                         GeocoderGraphHopper geocoder = new GeocoderGraphHopper(Locale.getDefault(), apiKey);
-
-
-                        //GeoPoint myLocation = new GeoPoint(mLocationOverlay.getMyLocation());
-                        //GeoPoint endPoint = new GeoPoint(51.11, 17.03);
                         ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
                         GeoPoint startPoint = new GeoPoint((currentLocation.getLatitude()), (currentLocation.getLongitude()));
                         waypoints.add(startPoint);
@@ -247,6 +239,8 @@ public class DirectionsFragment extends Fragment implements LocationListener {
                 return;
             }
         });
+
+
         mMapView.getOverlayManager().add(new MapEventsOverlay(new MapEventsReceiver() {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
@@ -265,16 +259,14 @@ public class DirectionsFragment extends Fragment implements LocationListener {
             }
         }));
 
+
     }
 
+
+
     public void navigateFromFavourites(GeoPoint geoPoint){
-
-        final IMapController mapController = mMapView.getController();
-        final Context context = this.getActivity();
-        final Marker marker = new Marker(mMapView);
-
-        endPoint = geoPoint;
-        String apiKey;
+        favouritePoint = geoPoint;
+        /*
         while (currentLocation==null)
             try {
                 Thread.sleep(100);
@@ -285,15 +277,8 @@ public class DirectionsFragment extends Fragment implements LocationListener {
             mMapView.getOverlays().remove(roadOverlay);
 
 
-        InputStream inputStream = getContext().getResources().openRawResource(R.raw.graphhopper_api_key);
-        Scanner s = new Scanner(inputStream);
-        apiKey = s.hasNext() ? s.next() : "";
-
         GeocoderGraphHopper geocoder = new GeocoderGraphHopper(Locale.getDefault(), apiKey);
 
-
-        //GeoPoint myLocation = new GeoPoint(mLocationOverlay.getMyLocation());
-        //GeoPoint endPoint = new GeoPoint(51.11, 17.03);
         ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
         GeoPoint startPoint = new GeoPoint((currentLocation.getLatitude()), (currentLocation.getLongitude()));
         waypoints.add(startPoint);
@@ -321,7 +306,7 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         mapController.animateTo(geoPoint);
 
         mMapView.getOverlays().add(roadOverlay);
-        mMapView.invalidate();
+        mMapView.invalidate();*/
     }
 
     @Override
