@@ -1,6 +1,7 @@
 package com.teamnumberb.pureair.favourite;
 
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
@@ -19,13 +20,16 @@ public class FavoriteViewHolder extends RecyclerView.ViewHolder implements View.
     public IFavoriteViewHolderClick mListener;
     public TextView mTextView;
     public ImageView mImageView;
+    public CardView mCardView;
 
     public FavoriteViewHolder(@NonNull View itemView, IFavoriteViewHolderClick listener) {
         super(itemView);
         mListener = listener;
         mTextView = itemView.findViewById(R.id.favouriteNameTextView);
         mImageView = itemView.findViewById(R.id.deleteFavourite);
+        mCardView = itemView.findViewById(R.id.favourite_card);
         mImageView.setOnClickListener(this);
+        mCardView.setOnClickListener(this);
         mTextView.setOnClickListener(this);
     }
 

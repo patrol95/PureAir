@@ -266,47 +266,6 @@ public class DirectionsFragment extends Fragment implements LocationListener {
 
     public void navigateFromFavourites(GeoPoint geoPoint){
         favouritePoint = geoPoint;
-        /*
-        while (currentLocation==null)
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        if (roadOverlay != null)
-            mMapView.getOverlays().remove(roadOverlay);
-
-
-        GeocoderGraphHopper geocoder = new GeocoderGraphHopper(Locale.getDefault(), apiKey);
-
-        ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
-        GeoPoint startPoint = new GeoPoint((currentLocation.getLatitude()), (currentLocation.getLongitude()));
-        waypoints.add(startPoint);
-        waypoints.add(endPoint);
-
-        GraphHopperRoadManager roadManager = new GraphHopperRoadManager(apiKey, false);
-        roadManager.addRequestOption("vehicle=bike");
-        Road road = roadManager.getRoad(waypoints);
-        roadOverlay = RoadManager.buildRoadOverlay(road);
-        roadOverlay.setWidth(20);
-        GeoPoint midPoint = new GeoPoint((currentLocation.getLatitude()+endPoint.getLatitude())/2,
-                (currentLocation.getLongitude()+endPoint.getLongitude())/2);
-        mapController.animateTo(midPoint);
-        double distance = roadOverlay.getDistance();
-
-        if(distance < 3000)
-            mapController.setZoom(15.0);
-        else if (distance <9000)
-            mapController.setZoom(13.0);
-        else
-            mapController.setZoom(11.0);
-        marker.setPosition(geoPoint);
-        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-        mMapView.getOverlays().add(marker);
-        mapController.animateTo(geoPoint);
-
-        mMapView.getOverlays().add(roadOverlay);
-        mMapView.invalidate();*/
     }
 
     @Override
