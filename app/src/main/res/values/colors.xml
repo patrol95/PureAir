@@ -3,4 +3,10 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
+    <color name="colorAirGood">#7700b050</color>
+    <color name="colorAirStandard">#7700b050</color>
+    <color name="colorAirSubstandard">#7700b050</color>
+    <color name="colorAirUnfavourable">#7700b050</color>
+    <color name="colorAirBad">#7700b050</color>
+    <color name="colorAirCritical">#7700b050</color>
 </resources>
