@@ -33,6 +33,8 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 
@@ -114,7 +116,9 @@ public class DirectionsFragment extends Fragment implements LocationListener {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
 
 
         View v = inflater.inflate(R.layout.fragment_directions, null);
@@ -134,10 +138,11 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         final Marker marker = new Marker(mMapView);
 
 
-        this.mCompassOverlay = new CompassOverlay(context, new InternalCompassOrientationProvider(context),
-                mMapView);
+        this.mCompassOverlay =
+                new CompassOverlay(context, new InternalCompassOrientationProvider(context),
+                                   mMapView);
         this.mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(context),
-                mMapView);
+                                                         mMapView);
 
         mScaleBarOverlay = new ScaleBarOverlay(mMapView);
         mScaleBarOverlay.setCentred(true);
@@ -159,12 +164,11 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         mCompassOverlay.enableCompass();
 
 
-
         mRotationGestureOverlay = new RotationGestureOverlay(mMapView);
         mRotationGestureOverlay.setEnabled(true);
         mMapView.getOverlays().add(mRotationGestureOverlay);
 
-        if(favouritePoint != null){
+        if (favouritePoint != null) {
             marker.setPosition(favouritePoint);
             marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
             mMapView.getOverlays().add(marker);
@@ -173,13 +177,14 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         }
 
 
-
         view.findViewById(R.id.fab_navigation).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (currentLocation != null) {
                     if (endPoint == null)
-                        Toast.makeText(getContext(), "Please select your destination", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(),
+                                       "Please select your destination",
+                                       Toast.LENGTH_LONG).show();
                     else {
 
 
@@ -190,14 +195,15 @@ public class DirectionsFragment extends Fragment implements LocationListener {
 
                         roadOverlay = RoadManager.buildRoadOverlay(bestRoute);
                         roadOverlay.setWidth(20);
-                        GeoPoint midPoint = new GeoPoint((currentLocation.getLatitude()+endPoint.getLatitude())/2,
-                                (currentLocation.getLongitude()+endPoint.getLongitude())/2);
+                        GeoPoint midPoint =
+                                new GeoPoint((currentLocation.getLatitude() + endPoint.getLatitude()) / 2,
+                                             (currentLocation.getLongitude() + endPoint.getLongitude()) / 2);
                         mapController.animateTo(midPoint);
                         double distance = roadOverlay.getDistance();
 
-                        if(distance < 3000)
+                        if (distance < 3000)
                             mapController.setZoom(15.0);
-                        else if (distance <9000)
+                        else if (distance < 9000)
                             mapController.setZoom(13.0);
                         else
                             mapController.setZoom(11.0);
@@ -207,24 +213,29 @@ public class DirectionsFragment extends Fragment implements LocationListener {
                         mMapView.invalidate();
                     }
                 } else
-                    Toast.makeText(getContext(), "Current location unavailable", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), "Current location unavailable", Toast.LENGTH_LONG)
+                            .show();
             }
 
 
         });
 
-        view.findViewById(R.id.fab_go_to_my_location).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (currentLocation != null) {
-                    GeoPoint myLocation = new GeoPoint((currentLocation.getLatitude()), (currentLocation.getLongitude()));
-                    mapController.animateTo(myLocation);
-                    mapController.setZoom(15.0);
-                } else
-                    Toast.makeText(getContext(), "Current location unavailable", Toast.LENGTH_LONG).show();
-                return;
-            }
-        });
+        view.findViewById(R.id.fab_go_to_my_location)
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (currentLocation != null) {
+                            GeoPoint myLocation = new GeoPoint((currentLocation.getLatitude()),
+                                                               (currentLocation.getLongitude()));
+                            mapController.animateTo(myLocation);
+                            mapController.setZoom(15.0);
+                        } else
+                            Toast.makeText(getContext(),
+                                           "Current location unavailable",
+                                           Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                });
 
 
         mMapView.getOverlayManager().add(new MapEventsOverlay(new MapEventsReceiver() {
@@ -249,8 +260,7 @@ public class DirectionsFragment extends Fragment implements LocationListener {
     }
 
 
-
-    public void navigateFromFavourites(GeoPoint geoPoint){
+    public void navigateFromFavourites(GeoPoint geoPoint) {
         favouritePoint = geoPoint;
     }
 
@@ -273,7 +283,8 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         super.onResume();
         lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
         try {
-            //this fails on AVD 19s, even with the appcompat check, says no provided named gps is available
+            //this fails on AVD 19s, even with the appcompat check, says no provided named gps is
+            // available
             lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0l, 0f, this);
         } catch (Exception ex) {
         }
@@ -327,14 +338,15 @@ public class DirectionsFragment extends Fragment implements LocationListener {
 
     private Road selectBestRoute() {
         final String apiKey = getGraphhopperApiKey();
+        GraphHopperRoadManager roadManager = new GraphHopperRoadManager(apiKey, false);
+        roadManager.addRequestOption("vehicle=bike");
 
         ArrayList<GeoPoint> waypoints = new ArrayList<>();
         GeoPoint startPoint = new GeoPoint(currentLocation);
         waypoints.add(startPoint);
+        waypoints.addAll(getMidWaypoints());
         waypoints.add(endPoint);
 
-        GraphHopperRoadManager roadManager = new GraphHopperRoadManager(apiKey, false);
-        roadManager.addRequestOption("vehicle=bike");
         return roadManager.getRoad(waypoints);
     }
 
@@ -342,6 +354,47 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         InputStream inputStream = getResources().openRawResource(R.raw.graphhopper_api_key);
         Scanner s = new Scanner(inputStream);
         return s.hasNext() ? s.next() : "";
+    }
+
+    private ArrayList<GeoPoint> getMidWaypoints() {
+        ArrayList<PollutionData> pointsInSquare = getAllPollutionPointsWithinSquare();
+        Collections.sort(pointsInSquare, new Comparator<PollutionData>() {
+                             @Override
+                             public int compare(PollutionData a, PollutionData b) {
+                                 return a.pm25 < b.pm25 ? -1 : a.pm25 == b.pm25 ? 0 : 1;
+                             }
+                         }
+        );
+
+        ArrayList<GeoPoint> result = new ArrayList<>();
+        for (int i = 0; i < 3 && i < pointsInSquare.size(); ++i) {
+            result.add(pointsInSquare.get(i).location);
+        }
+        return result;
+    }
+
+    private ArrayList<PollutionData> getAllPollutionPointsWithinSquare() {
+        double startLat = currentLocation.getLatitude();
+        double startLong = currentLocation.getLongitude();
+        double endLat = endPoint.getLatitude();
+        double endLong = endPoint.getLongitude();
+
+        double minLat = startLat < endLat ? startLat : endLat;
+        double maxLat = startLat > endLat ? startLat : endLat;
+        double minLong = startLong < endLong ? startLong : endLong;
+        double maxLong = startLong > endLong ? startLong : endLong;
+
+        List<PollutionData> data = airlyData.getPollutionData();
+        ArrayList<PollutionData> results = new ArrayList<>();
+        for (PollutionData point : data) {
+            double lat = point.location.getLatitude();
+            double lon = point.location.getLongitude();
+            if (minLat < lat && lat < maxLat &&
+                    minLong < lon && lon < maxLong) {
+                results.add(point);
+            }
+        }
+        return results;
     }
 
 }
