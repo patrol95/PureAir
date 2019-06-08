@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import org.osmdroid.api.IMapController;
-import org.osmdroid.bonuspack.location.GeocoderGraphHopper;
 import org.osmdroid.bonuspack.routing.GraphHopperRoadManager;
 import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.bonuspack.routing.RoadManager;
@@ -35,7 +34,6 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Scanner;
 
 class PollutionDataListener implements Runnable {
@@ -135,9 +133,6 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         final DisplayMetrics dm = context.getResources().getDisplayMetrics();
         final Marker marker = new Marker(mMapView);
 
-        InputStream inputStream = context.getResources().openRawResource(R.raw.graphhopper_api_key);
-        Scanner s = new Scanner(inputStream);
-        final String apiKey = s.hasNext() ? s.next() : "";
 
         this.mCompassOverlay = new CompassOverlay(context, new InternalCompassOrientationProvider(context),
                 mMapView);
@@ -191,18 +186,9 @@ public class DirectionsFragment extends Fragment implements LocationListener {
                         if (roadOverlay != null)
                             mMapView.getOverlays().remove(roadOverlay);
 
+                        Road bestRoute = selectBestRoute();
 
-
-                        GeocoderGraphHopper geocoder = new GeocoderGraphHopper(Locale.getDefault(), apiKey);
-                        ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
-                        GeoPoint startPoint = new GeoPoint((currentLocation.getLatitude()), (currentLocation.getLongitude()));
-                        waypoints.add(startPoint);
-                        waypoints.add(endPoint);
-
-                        GraphHopperRoadManager roadManager = new GraphHopperRoadManager(apiKey, false);
-                        roadManager.addRequestOption("vehicle=bike");
-                        Road road = roadManager.getRoad(waypoints);
-                        roadOverlay = RoadManager.buildRoadOverlay(road);
+                        roadOverlay = RoadManager.buildRoadOverlay(bestRoute);
                         roadOverlay.setWidth(20);
                         GeoPoint midPoint = new GeoPoint((currentLocation.getLatitude()+endPoint.getLatitude())/2,
                                 (currentLocation.getLongitude()+endPoint.getLongitude())/2);
@@ -337,6 +323,25 @@ public class DirectionsFragment extends Fragment implements LocationListener {
     private void asyncAddPollutionDataToMap() {
         PollutionDataListener t = new PollutionDataListener(mMapView, airlyData);
         t.run();
+    }
+
+    private Road selectBestRoute() {
+        final String apiKey = getGraphhopperApiKey();
+
+        ArrayList<GeoPoint> waypoints = new ArrayList<>();
+        GeoPoint startPoint = new GeoPoint(currentLocation);
+        waypoints.add(startPoint);
+        waypoints.add(endPoint);
+
+        GraphHopperRoadManager roadManager = new GraphHopperRoadManager(apiKey, false);
+        roadManager.addRequestOption("vehicle=bike");
+        return roadManager.getRoad(waypoints);
+    }
+
+    private String getGraphhopperApiKey() {
+        InputStream inputStream = getResources().openRawResource(R.raw.graphhopper_api_key);
+        Scanner s = new Scanner(inputStream);
+        return s.hasNext() ? s.next() : "";
     }
 
 }
