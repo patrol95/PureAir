@@ -345,11 +345,24 @@ public class DirectionsFragment extends Fragment implements LocationListener {
 
         ArrayList<GeoPoint> waypoints = new ArrayList<>();
         GeoPoint startPoint = new GeoPoint(currentLocation);
-        waypoints.add(startPoint);
-        waypoints.addAll(getMidWaypoints());
-        waypoints.add(endPoint);
+        if (shouldPrioritizeLowPollution()) {
+            waypoints.add(startPoint);
+            waypoints.addAll(getMidWaypoints());
+            waypoints.add(endPoint);
 
+            return roadManager.getRoad(waypoints);
+        }
+        waypoints.add(startPoint);
+        waypoints.add(endPoint);
         return roadManager.getRoad(waypoints);
+
+    }
+
+    private boolean shouldPrioritizeLowPollution() {
+        int maxPriority = getResources().getInteger(R.integer.maxPriority);
+        int treshold = maxPriority / 2;
+        int userChoice = settingsManager.getPriority();
+        return userChoice < treshold;
     }
 
     private String getGraphhopperApiKey() {
@@ -370,10 +383,27 @@ public class DirectionsFragment extends Fragment implements LocationListener {
 
         ArrayList<GeoPoint> result = new ArrayList<>();
         for (int i = 0; i < 3 && i < pointsInSquare.size(); ++i) {
-            if(pmValueIsAcceptable(pointsInSquare.get(i).pm25)){
+            if (pmValueIsAcceptable(pointsInSquare.get(i).pm25)) {
                 result.add(pointsInSquare.get(i).location);
             }
         }
+
+        Collections.sort(result, new Comparator<GeoPoint>() {
+            @Override
+            public int compare(GeoPoint p1, GeoPoint p2) {
+                float[] r1 = new float[1];
+                float[] r2 = new float[1];
+                Location.distanceBetween(currentLocation.getLatitude(),
+                                         currentLocation.getLongitude(), p1.getLatitude(),
+                                         p1.getLongitude(), r1);
+                Location.distanceBetween(currentLocation.getLatitude(),
+                                         currentLocation.getLongitude(), p2.getLatitude(),
+                                         p2.getLongitude(), r2);
+                System.out.println("Distance1: " + r1[0] + ", Distance2: " + r2[0]);
+                return Float.compare(r1[0], r2[0]);
+            }
+        });
+
         return result;
     }
 
