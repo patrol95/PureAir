@@ -20,7 +20,7 @@
         android:layout_width="258dp"
         android:layout_height="21dp"
         android:layout_marginTop="620dp"
-        android:text="Click on the settings icon to continue"
+        android:text="Click on the settings icon to continue."
         android:textAlignment="center"
         android:textColor="@color/colorPrimary"
         android:textSize="15sp"

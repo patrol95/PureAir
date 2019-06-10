@@ -19,7 +19,7 @@
         android:layout_width="373dp"
         android:layout_height="20dp"
         android:layout_marginTop="85dp"
-        android:text="Click directions icon once you have read the slider descriptions"
+        android:text="Click directions icon once you have read the slider descriptions."
         android:textAlignment="center"
         android:textColor="@color/colorPrimary"
         android:textSize="13sp"
