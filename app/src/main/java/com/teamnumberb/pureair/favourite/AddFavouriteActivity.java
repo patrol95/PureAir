@@ -114,7 +114,7 @@ public class AddFavouriteActivity extends AppCompatActivity implements LocationL
                         textView2.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                GeoPoint p = new GeoPoint(addresses.get(0).getLatitude(), addresses.get(0).getLongitude());
+                                GeoPoint p = new GeoPoint(addresses.get(1).getLatitude(), addresses.get(1).getLongitude());
                                 marker.setPosition(p);
                                 marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
                                 mapView.getOverlays().add(marker);
@@ -130,7 +130,7 @@ public class AddFavouriteActivity extends AppCompatActivity implements LocationL
                         textView3.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                GeoPoint p = new GeoPoint(addresses.get(0).getLatitude(), addresses.get(0).getLongitude());
+                                GeoPoint p = new GeoPoint(addresses.get(2).getLatitude(), addresses.get(2).getLongitude());
                                 marker.setPosition(p);
                                 marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
                                 mapView.getOverlays().add(marker);
