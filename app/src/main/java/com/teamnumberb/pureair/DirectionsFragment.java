@@ -1,20 +1,26 @@
 package com.teamnumberb.pureair;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.location.Address;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.SearchView;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.location.GeocoderGraphHopper;
+import org.osmdroid.bonuspack.location.GeocoderNominatim;
 import org.osmdroid.bonuspack.routing.GraphHopperRoadManager;
 import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.bonuspack.routing.RoadManager;
@@ -32,6 +38,7 @@ import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -164,19 +171,17 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         mCompassOverlay.enableCompass();
 
 
-
         mRotationGestureOverlay = new RotationGestureOverlay(mMapView);
         mRotationGestureOverlay.setEnabled(true);
         mMapView.getOverlays().add(mRotationGestureOverlay);
 
-        if(favouritePoint != null){
+        if (favouritePoint != null) {
             marker.setPosition(favouritePoint);
             marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
             mMapView.getOverlays().add(marker);
             mapController.animateTo(favouritePoint);
             endPoint = favouritePoint;
         }
-
 
 
         view.findViewById(R.id.fab_navigation).setOnClickListener(new View.OnClickListener() {
@@ -192,7 +197,6 @@ public class DirectionsFragment extends Fragment implements LocationListener {
                             mMapView.getOverlays().remove(roadOverlay);
 
 
-
                         GeocoderGraphHopper geocoder = new GeocoderGraphHopper(Locale.getDefault(), apiKey);
                         ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
                         GeoPoint startPoint = new GeoPoint((currentLocation.getLatitude()), (currentLocation.getLongitude()));
@@ -204,14 +208,14 @@ public class DirectionsFragment extends Fragment implements LocationListener {
                         Road road = roadManager.getRoad(waypoints);
                         roadOverlay = RoadManager.buildRoadOverlay(road);
                         roadOverlay.setWidth(20);
-                        GeoPoint midPoint = new GeoPoint((currentLocation.getLatitude()+endPoint.getLatitude())/2,
-                                (currentLocation.getLongitude()+endPoint.getLongitude())/2);
+                        GeoPoint midPoint = new GeoPoint((currentLocation.getLatitude() + endPoint.getLatitude()) / 2,
+                                (currentLocation.getLongitude() + endPoint.getLongitude()) / 2);
                         mapController.animateTo(midPoint);
                         double distance = roadOverlay.getDistance();
 
-                        if(distance < 3000)
+                        if (distance < 3000)
                             mapController.setZoom(15.0);
-                        else if (distance <9000)
+                        else if (distance < 9000)
                             mapController.setZoom(13.0);
                         else
                             mapController.setZoom(11.0);
@@ -259,12 +263,105 @@ public class DirectionsFragment extends Fragment implements LocationListener {
             }
         }));
 
+        SearchView searchView = getActivity().findViewById(R.id.searchView);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @SuppressLint("MissingPermission")
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                GeocoderNominatim geocoderNominatim = new GeocoderNominatim("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36");
+                try {
+                    Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                    final List<Address> addresses = geocoderNominatim.getFromLocationName(
+                            s,
+                            3,
+                            location.getLatitude() - 0.3,
+                            location.getLongitude() - 0.3,
+                            location.getLatitude() + 0.3,
+                            location.getLongitude() + 0.3
+                    );
+                    final TextView textView1 = getActivity().findViewById(R.id.searchResultTextView1);
+                    final TextView textView2 = getActivity().findViewById(R.id.searchResultTextView2);
+                    final TextView textView3 = getActivity().findViewById(R.id.searchResultTextView3);
+                    hideResults(textView1, textView2, textView3);
+                    if (addresses.size() > 0) {
+                        textView1.setVisibility(View.VISIBLE);
+                        textView1.setText(getAddressString(addresses.get(0)));
+                        textView1.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                GeoPoint p = new GeoPoint(addresses.get(0).getLatitude(), addresses.get(0).getLongitude());
+                                marker.setPosition(p);
+                                marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+                                mMapView.getOverlays().add(marker);
+                                mapController.animateTo(p);
+                                endPoint = p;
+                                hideResults(textView1, textView2, textView3);
+                            }
+                        });
+                    }
+                    if (addresses.size() > 1) {
+                        textView2.setVisibility(View.VISIBLE);
+                        textView2.setText(getAddressString(addresses.get(1)));
+                        textView2.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                GeoPoint p = new GeoPoint(addresses.get(0).getLatitude(), addresses.get(0).getLongitude());
+                                marker.setPosition(p);
+                                marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+                                mMapView.getOverlays().add(marker);
+                                mapController.animateTo(p);
+                                endPoint = p;
+                                hideResults(textView1, textView2, textView3);
+                            }
+                        });
+                    }
+                    if (addresses.size() > 2) {
+                        textView3.setVisibility(View.VISIBLE);
+                        textView3.setText(getAddressString(addresses.get(2)));
+                        textView3.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                GeoPoint p = new GeoPoint(addresses.get(0).getLatitude(), addresses.get(0).getLongitude());
+                                marker.setPosition(p);
+                                marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+                                mMapView.getOverlays().add(marker);
+                                mapController.animateTo(p);
+                                endPoint = p;
+                                hideResults(textView1, textView2, textView3);
+                            }
+                        });
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return false;
+            }
 
+            @Override
+            public boolean onQueryTextChange(String s) {
+                return false;
+            }
+        });
     }
 
+    private String getAddressString(Address address) {
+        StringBuilder addressString = new StringBuilder();
+        int i = 0;
+        while (i < address.getMaxAddressLineIndex()) {
+            addressString.append(address.getAddressLine(i));
+            addressString.append(", ");
+            i++;
+        }
+        return addressString.toString();
+    }
 
+    private void hideResults(TextView textView1, TextView textView2, TextView textView3) {
+        textView1.setVisibility(View.GONE);
+        textView2.setVisibility(View.GONE);
+        textView3.setVisibility(View.GONE);
+    }
 
-    public void navigateFromFavourites(GeoPoint geoPoint){
+    public void navigateFromFavourites(GeoPoint geoPoint) {
         favouritePoint = geoPoint;
     }
 
