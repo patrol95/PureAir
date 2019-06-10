@@ -102,6 +102,7 @@ public class DirectionsFragment extends Fragment implements LocationListener {
     private RotationGestureOverlay mRotationGestureOverlay;
     private LocationManager lm;
     private Location currentLocation;
+    private SettingsManager settingsManager;
     private PollutionDataCollector airlyData;
     private GeoPoint endPoint = null;
     private GeoPoint favouritePoint = null;
@@ -112,6 +113,7 @@ public class DirectionsFragment extends Fragment implements LocationListener {
     public void onAttach(Context context) {
         super.onAttach(context);
         airlyData = new AirlyDataCollector(context);
+        settingsManager = new SettingsManager(context);
     }
 
     @Nullable
@@ -361,14 +363,16 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         Collections.sort(pointsInSquare, new Comparator<PollutionData>() {
                              @Override
                              public int compare(PollutionData a, PollutionData b) {
-                                 return a.pm25 < b.pm25 ? -1 : a.pm25 == b.pm25 ? 0 : 1;
+                                 return Double.compare(a.pm25, b.pm25);
                              }
                          }
         );
 
         ArrayList<GeoPoint> result = new ArrayList<>();
         for (int i = 0; i < 3 && i < pointsInSquare.size(); ++i) {
-            result.add(pointsInSquare.get(i).location);
+            if(pmValueIsAcceptable(pointsInSquare.get(i).pm25)){
+                result.add(pointsInSquare.get(i).location);
+            }
         }
         return result;
     }
@@ -395,6 +399,11 @@ public class DirectionsFragment extends Fragment implements LocationListener {
             }
         }
         return results;
+    }
+
+    private boolean pmValueIsAcceptable(double pm25) {
+        double acceptablePollution = settingsManager.getAcceptablePollution();
+        return pm25 < acceptablePollution;
     }
 
 }
