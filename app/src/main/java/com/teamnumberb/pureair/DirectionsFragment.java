@@ -41,6 +41,8 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
@@ -109,6 +111,7 @@ public class DirectionsFragment extends Fragment implements LocationListener {
     private RotationGestureOverlay mRotationGestureOverlay;
     private LocationManager lm;
     private Location currentLocation;
+    private SettingsManager settingsManager;
     private PollutionDataCollector airlyData;
     private GeoPoint endPoint = null;
     private GeoPoint favouritePoint = null;
@@ -119,11 +122,14 @@ public class DirectionsFragment extends Fragment implements LocationListener {
     public void onAttach(Context context) {
         super.onAttach(context);
         airlyData = new AirlyDataCollector(context);
+        settingsManager = new SettingsManager(context);
     }
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
 
 
         View v = inflater.inflate(R.layout.fragment_directions, null);
@@ -142,14 +148,12 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         final DisplayMetrics dm = context.getResources().getDisplayMetrics();
         final Marker marker = new Marker(mMapView);
 
-        InputStream inputStream = context.getResources().openRawResource(R.raw.graphhopper_api_key);
-        Scanner s = new Scanner(inputStream);
-        final String apiKey = s.hasNext() ? s.next() : "";
 
-        this.mCompassOverlay = new CompassOverlay(context, new InternalCompassOrientationProvider(context),
-                mMapView);
+        this.mCompassOverlay =
+                new CompassOverlay(context, new InternalCompassOrientationProvider(context),
+                                   mMapView);
         this.mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(context),
-                mMapView);
+                                                         mMapView);
 
         mScaleBarOverlay = new ScaleBarOverlay(mMapView);
         mScaleBarOverlay.setCentred(true);
@@ -189,27 +193,22 @@ public class DirectionsFragment extends Fragment implements LocationListener {
             public void onClick(View v) {
                 if (currentLocation != null) {
                     if (endPoint == null)
-                        Toast.makeText(getContext(), "Please select your destination", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(),
+                                       "Please select your destination",
+                                       Toast.LENGTH_LONG).show();
                     else {
 
 
                         if (roadOverlay != null)
                             mMapView.getOverlays().remove(roadOverlay);
 
+                        Road bestRoute = selectBestRoute();
 
-                        GeocoderGraphHopper geocoder = new GeocoderGraphHopper(Locale.getDefault(), apiKey);
-                        ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
-                        GeoPoint startPoint = new GeoPoint((currentLocation.getLatitude()), (currentLocation.getLongitude()));
-                        waypoints.add(startPoint);
-                        waypoints.add(endPoint);
-
-                        GraphHopperRoadManager roadManager = new GraphHopperRoadManager(apiKey, false);
-                        roadManager.addRequestOption("vehicle=bike");
-                        Road road = roadManager.getRoad(waypoints);
-                        roadOverlay = RoadManager.buildRoadOverlay(road);
+                        roadOverlay = RoadManager.buildRoadOverlay(bestRoute);
                         roadOverlay.setWidth(20);
-                        GeoPoint midPoint = new GeoPoint((currentLocation.getLatitude() + endPoint.getLatitude()) / 2,
-                                (currentLocation.getLongitude() + endPoint.getLongitude()) / 2);
+                        GeoPoint midPoint =
+                                new GeoPoint((currentLocation.getLatitude() + endPoint.getLatitude()) / 2,
+                                             (currentLocation.getLongitude() + endPoint.getLongitude()) / 2);
                         mapController.animateTo(midPoint);
                         double distance = roadOverlay.getDistance();
 
@@ -225,24 +224,29 @@ public class DirectionsFragment extends Fragment implements LocationListener {
                         mMapView.invalidate();
                     }
                 } else
-                    Toast.makeText(getContext(), "Current location unavailable", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), "Current location unavailable", Toast.LENGTH_LONG)
+                            .show();
             }
 
 
         });
 
-        view.findViewById(R.id.fab_go_to_my_location).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (currentLocation != null) {
-                    GeoPoint myLocation = new GeoPoint((currentLocation.getLatitude()), (currentLocation.getLongitude()));
-                    mapController.animateTo(myLocation);
-                    mapController.setZoom(15.0);
-                } else
-                    Toast.makeText(getContext(), "Current location unavailable", Toast.LENGTH_LONG).show();
-                return;
-            }
-        });
+        view.findViewById(R.id.fab_go_to_my_location)
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (currentLocation != null) {
+                            GeoPoint myLocation = new GeoPoint((currentLocation.getLatitude()),
+                                                               (currentLocation.getLongitude()));
+                            mapController.animateTo(myLocation);
+                            mapController.setZoom(15.0);
+                        } else
+                            Toast.makeText(getContext(),
+                                           "Current location unavailable",
+                                           Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                });
 
 
         mMapView.getOverlayManager().add(new MapEventsOverlay(new MapEventsReceiver() {
@@ -434,6 +438,135 @@ public class DirectionsFragment extends Fragment implements LocationListener {
     private void asyncAddPollutionDataToMap() {
         PollutionDataListener t = new PollutionDataListener(mMapView, airlyData);
         t.run();
+    }
+
+    private Road selectBestRoute() {
+        final String apiKey = getGraphhopperApiKey();
+        GraphHopperRoadManager roadManager = new GraphHopperRoadManager(apiKey, false);
+        roadManager.addRequestOption("vehicle=bike");
+
+        ArrayList<GeoPoint> waypoints = new ArrayList<>();
+        GeoPoint startPoint = new GeoPoint(currentLocation);
+
+        if (shouldPrioritizeLowPollution()) {
+            waypoints.add(startPoint);
+            waypoints.addAll(getMidWaypoints());
+            waypoints.add(endPoint);
+
+            return roadManager.getRoad(waypoints);
+        }
+
+        return getShortestRouteWithLowestPollution(roadManager);
+    }
+
+    private boolean shouldPrioritizeLowPollution() {
+        int maxPriority = getResources().getInteger(R.integer.maxPriority);
+        int treshold = maxPriority / 2;
+        int userChoice = settingsManager.getPriority();
+        return userChoice < treshold;
+    }
+
+    private String getGraphhopperApiKey() {
+        InputStream inputStream = getResources().openRawResource(R.raw.graphhopper_api_key);
+        Scanner s = new Scanner(inputStream);
+        return s.hasNext() ? s.next() : "";
+    }
+
+    private ArrayList<GeoPoint> getMidWaypoints() {
+        ArrayList<PollutionData> pointsInSquare = getAllPollutionPointsWithinSquare();
+        Collections.sort(pointsInSquare, new Comparator<PollutionData>() {
+                             @Override
+                             public int compare(PollutionData a, PollutionData b) {
+                                 return Double.compare(a.pm25, b.pm25);
+                             }
+                         }
+        );
+
+        ArrayList<GeoPoint> result = new ArrayList<>();
+        for (int i = 0; i < 3 && i < pointsInSquare.size(); ++i) {
+            if (pmValueIsAcceptable(pointsInSquare.get(i).pm25)) {
+                result.add(pointsInSquare.get(i).location);
+            }
+        }
+
+        Collections.sort(result, new Comparator<GeoPoint>() {
+            @Override
+            public int compare(GeoPoint p1, GeoPoint p2) {
+                float[] r1 = new float[1];
+                float[] r2 = new float[1];
+                Location.distanceBetween(currentLocation.getLatitude(),
+                                         currentLocation.getLongitude(), p1.getLatitude(),
+                                         p1.getLongitude(), r1);
+                Location.distanceBetween(currentLocation.getLatitude(),
+                                         currentLocation.getLongitude(), p2.getLatitude(),
+                                         p2.getLongitude(), r2);
+                System.out.println("Distance1: " + r1[0] + ", Distance2: " + r2[0]);
+                return Float.compare(r1[0], r2[0]);
+            }
+        });
+
+        return result;
+    }
+
+    private ArrayList<PollutionData> getAllPollutionPointsWithinSquare() {
+        double startLat = currentLocation.getLatitude();
+        double startLong = currentLocation.getLongitude();
+        double endLat = endPoint.getLatitude();
+        double endLong = endPoint.getLongitude();
+
+        double minLat = startLat < endLat ? startLat : endLat;
+        double maxLat = startLat > endLat ? startLat : endLat;
+        double minLong = startLong < endLong ? startLong : endLong;
+        double maxLong = startLong > endLong ? startLong : endLong;
+
+        List<PollutionData> data = airlyData.getPollutionData();
+        ArrayList<PollutionData> results = new ArrayList<>();
+        for (PollutionData point : data) {
+            double lat = point.location.getLatitude();
+            double lon = point.location.getLongitude();
+            if (minLat < lat && lat < maxLat &&
+                    minLong < lon && lon < maxLong) {
+                results.add(point);
+            }
+        }
+        return results;
+    }
+
+    private boolean pmValueIsAcceptable(double pm25) {
+        double acceptablePollution = settingsManager.getAcceptablePollution();
+        return pm25 < acceptablePollution;
+    }
+
+    private Road getShortestRouteWithLowestPollution(RoadManager roadManager) {
+        ArrayList<GeoPoint> waypoints = new ArrayList<>();
+        GeoPoint startPoint = new GeoPoint(currentLocation);
+        waypoints.add(startPoint);
+        waypoints.add(endPoint);
+        Road shortestRoute = roadManager.getRoad(waypoints);
+
+        int maxAcceptableOverheadDistanceInMeters = settingsManager.getAcceptableDistance();
+        double maxAcceptableOverheadDistanceInKM = maxAcceptableOverheadDistanceInMeters / 1000.;
+        double maxAcceptableDistance = shortestRoute.mLength + maxAcceptableOverheadDistanceInKM;
+
+        waypoints.clear();
+
+        waypoints.add(startPoint);
+        waypoints.addAll(getMidWaypoints());
+        waypoints.add(endPoint);
+        Road triedRoute = roadManager.getRoad(waypoints);
+
+        if (triedRoute.mLength > maxAcceptableDistance) {
+            Toast toast = Toast.makeText(getContext(), "Lowest pollution route is too long,\n" +
+                    "selecting shortest route", Toast.LENGTH_LONG);
+            View view = toast.getView();
+            view.setBackgroundColor(0xFF000000);
+            TextView text = view.findViewById(android.R.id.message);
+            text.setTextColor(0xFFFFFFFF);
+            toast.show();
+
+            return shortestRoute;
+        }
+        return triedRoute;
     }
 
 }
