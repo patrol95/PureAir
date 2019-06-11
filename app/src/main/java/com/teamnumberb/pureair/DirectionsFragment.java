@@ -11,6 +11,7 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.osmdroid.api.IMapController;
@@ -345,6 +346,7 @@ public class DirectionsFragment extends Fragment implements LocationListener {
 
         ArrayList<GeoPoint> waypoints = new ArrayList<>();
         GeoPoint startPoint = new GeoPoint(currentLocation);
+
         if (shouldPrioritizeLowPollution()) {
             waypoints.add(startPoint);
             waypoints.addAll(getMidWaypoints());
@@ -352,10 +354,8 @@ public class DirectionsFragment extends Fragment implements LocationListener {
 
             return roadManager.getRoad(waypoints);
         }
-        waypoints.add(startPoint);
-        waypoints.add(endPoint);
-        return roadManager.getRoad(waypoints);
 
+        return getShortestRouteWithLowestPollution(roadManager);
     }
 
     private boolean shouldPrioritizeLowPollution() {
@@ -434,6 +434,38 @@ public class DirectionsFragment extends Fragment implements LocationListener {
     private boolean pmValueIsAcceptable(double pm25) {
         double acceptablePollution = settingsManager.getAcceptablePollution();
         return pm25 < acceptablePollution;
+    }
+
+    private Road getShortestRouteWithLowestPollution(RoadManager roadManager) {
+        ArrayList<GeoPoint> waypoints = new ArrayList<>();
+        GeoPoint startPoint = new GeoPoint(currentLocation);
+        waypoints.add(startPoint);
+        waypoints.add(endPoint);
+        Road shortestRoute = roadManager.getRoad(waypoints);
+
+        int maxAcceptableOverheadDistanceInMeters = settingsManager.getAcceptableDistance();
+        double maxAcceptableOverheadDistanceInKM = maxAcceptableOverheadDistanceInMeters / 1000.;
+        double maxAcceptableDistance = shortestRoute.mLength + maxAcceptableOverheadDistanceInKM;
+
+        waypoints.clear();
+
+        waypoints.add(startPoint);
+        waypoints.addAll(getMidWaypoints());
+        waypoints.add(endPoint);
+        Road triedRoute = roadManager.getRoad(waypoints);
+
+        if (triedRoute.mLength > maxAcceptableDistance) {
+            Toast toast = Toast.makeText(getContext(), "Lowest pollution route is too long,\n" +
+                    "selecting shortest route", Toast.LENGTH_LONG);
+            View view = toast.getView();
+            view.setBackgroundColor(0xFF000000);
+            TextView text = view.findViewById(android.R.id.message);
+            text.setTextColor(0xFFFFFFFF);
+            toast.show();
+
+            return shortestRoute;
+        }
+        return triedRoute;
     }
 
 }
