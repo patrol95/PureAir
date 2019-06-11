@@ -41,6 +41,7 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -49,25 +50,30 @@ import java.util.Scanner;
 
 class PollutionDataListener implements Runnable {
     private MapView mapView;
-    private PollutionDataCollector collector;
-    private List<PollutionData> pollutionData = null;
+    private List<PollutionDataCollector> collectors;
+    private List<PollutionData> pollutionData = new ArrayList<>();
 
     public PollutionDataListener(MapView mapView,
-                                 PollutionDataCollector collector) {
+                                 List<PollutionDataCollector> collectors) {
         this.mapView = mapView;
-        this.collector = collector;
+        this.collectors = collectors;
     }
 
     @Override
     public void run() {
-        do {
-            pollutionData = collector.getPollutionData();
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        } while (pollutionData == null);
+
+        for (PollutionDataCollector collector : collectors) {
+            List<PollutionData> receivedPollutionData = null;
+            do {
+                receivedPollutionData = collector.getPollutionData();
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            } while (receivedPollutionData == null);
+            pollutionData.addAll(receivedPollutionData);
+        }
 
         addPollutionDataToMap();
     }
@@ -113,6 +119,7 @@ public class DirectionsFragment extends Fragment implements LocationListener {
     private Location currentLocation;
     private SettingsManager settingsManager;
     private PollutionDataCollector airlyData;
+    private PollutionDataCollector lookO2Data;
     private GeoPoint endPoint = null;
     private GeoPoint favouritePoint = null;
     private GeoPoint defaultWroclawPoint = new GeoPoint(51.10, 17.06);
@@ -122,6 +129,7 @@ public class DirectionsFragment extends Fragment implements LocationListener {
     public void onAttach(Context context) {
         super.onAttach(context);
         airlyData = new AirlyDataCollector(context);
+        lookO2Data = new LookO2DataCollector(context);
         settingsManager = new SettingsManager(context);
     }
 
@@ -272,7 +280,9 @@ public class DirectionsFragment extends Fragment implements LocationListener {
             @SuppressLint("MissingPermission")
             @Override
             public boolean onQueryTextSubmit(String s) {
-                GeocoderNominatim geocoderNominatim = new GeocoderNominatim("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36");
+                GeocoderNominatim geocoderNominatim = new GeocoderNominatim(
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, " +
+                                "like Gecko) Chrome/74.0.3729.169 Safari/537.36");
                 try {
                     Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                     final List<Address> addresses = geocoderNominatim.getFromLocationName(
@@ -283,9 +293,12 @@ public class DirectionsFragment extends Fragment implements LocationListener {
                             location.getLatitude() + 0.3,
                             location.getLongitude() + 0.3
                     );
-                    final TextView textView1 = getActivity().findViewById(R.id.searchResultTextView1);
-                    final TextView textView2 = getActivity().findViewById(R.id.searchResultTextView2);
-                    final TextView textView3 = getActivity().findViewById(R.id.searchResultTextView3);
+                    final TextView textView1 =
+                            getActivity().findViewById(R.id.searchResultTextView1);
+                    final TextView textView2 =
+                            getActivity().findViewById(R.id.searchResultTextView2);
+                    final TextView textView3 =
+                            getActivity().findViewById(R.id.searchResultTextView3);
                     hideResults(textView1, textView2, textView3);
                     if (addresses.size() > 0) {
                         textView1.setVisibility(View.VISIBLE);
@@ -293,7 +306,8 @@ public class DirectionsFragment extends Fragment implements LocationListener {
                         textView1.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                GeoPoint p = new GeoPoint(addresses.get(0).getLatitude(), addresses.get(0).getLongitude());
+                                GeoPoint p = new GeoPoint(addresses.get(0).getLatitude(),
+                                                          addresses.get(0).getLongitude());
                                 marker.setPosition(p);
                                 marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
                                 mMapView.getOverlays().add(marker);
@@ -309,7 +323,8 @@ public class DirectionsFragment extends Fragment implements LocationListener {
                         textView2.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                GeoPoint p = new GeoPoint(addresses.get(1).getLatitude(), addresses.get(1).getLongitude());
+                                GeoPoint p = new GeoPoint(addresses.get(1).getLatitude(),
+                                                          addresses.get(1).getLongitude());
                                 marker.setPosition(p);
                                 marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
                                 mMapView.getOverlays().add(marker);
@@ -325,7 +340,8 @@ public class DirectionsFragment extends Fragment implements LocationListener {
                         textView3.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                GeoPoint p = new GeoPoint(addresses.get(2).getLatitude(), addresses.get(2).getLongitude());
+                                GeoPoint p = new GeoPoint(addresses.get(2).getLatitude(),
+                                                          addresses.get(2).getLongitude());
                                 marker.setPosition(p);
                                 marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
                                 mMapView.getOverlays().add(marker);
@@ -388,7 +404,8 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         super.onResume();
         lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
         try {
-            //this fails on AVD 19s, even with the appcompat check, says no provided named gps is available
+            //this fails on AVD 19s, even with the appcompat check, says no provided named gps is
+            // available
             lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0l, 0f, this);
         } catch (Exception ex) {
         }
@@ -436,7 +453,8 @@ public class DirectionsFragment extends Fragment implements LocationListener {
     }
 
     private void asyncAddPollutionDataToMap() {
-        PollutionDataListener t = new PollutionDataListener(mMapView, airlyData);
+        PollutionDataListener t =
+                new PollutionDataListener(mMapView, Arrays.asList(airlyData, lookO2Data));
         t.run();
     }
 
@@ -520,6 +538,7 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         double maxLong = startLong > endLong ? startLong : endLong;
 
         List<PollutionData> data = airlyData.getPollutionData();
+        data.addAll(lookO2Data.getPollutionData());
         ArrayList<PollutionData> results = new ArrayList<>();
         for (PollutionData point : data) {
             double lat = point.location.getLatitude();
