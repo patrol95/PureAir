@@ -22,15 +22,39 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".favourite.AddFavouriteActivity"
             android:label="@string/title_add_favourite" />
+        <activity android:name=".splash_screens.SplashInitialActivity"
+            android:label="Pure Air">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".splash_screens.SplashHomeInitActivity">
+        </activity>
+        <activity android:name=".splash_screens.SplashSettingsActivity">
+        </activity>
+        <activity android:name=".splash_screens.SplashDirections1Activity">
+        </activity>
+        <activity android:name=".splash_screens.SplashDirections2Activity">
+        </activity>
+        <activity android:name=".splash_screens.SplashDirections3Activity">
+        </activity>
+        <activity android:name=".splash_screens.SplashFavorites1Activity">
+        </activity>
+        <activity android:name=".splash_screens.SplashFavorites2Activity">
+        </activity>
+        <activity android:name=".splash_screens.SplashFavorites3Activity">
+        </activity>
+        <activity android:name=".splash_screens.SplashFavorites4Activity">
+        </activity>
+        <activity android:name=".splash_screens.SplashFavorites5Activity">
+        </activity>
+        <activity android:name=".splash_screens.SplashFinalActivity">
+        </activity>
     </application>
 
 </manifest>

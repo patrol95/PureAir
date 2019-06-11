@@ -2,6 +2,8 @@ package com.teamnumberb.pureair;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -17,6 +19,7 @@ import android.view.MenuItem;
 
 
 import com.teamnumberb.pureair.favourite.FavouritesAdapter;
+import com.teamnumberb.pureair.splash_screens.SplashInitialActivity;
 
 import org.osmdroid.config.Configuration;
 import org.osmdroid.util.GeoPoint;
@@ -138,6 +141,9 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.IFav
     @Override
     public void favGeoPoint(GeoPoint geoPoint) {
         selectLocation(geoPoint);
+    }
+
+    public void displaySplashCreens(){
     }
 }
 
