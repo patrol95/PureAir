@@ -4,13 +4,36 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:background="@android:color/white"
+    android:id="@+id/splash_initial_layout"
+    >
 
+    <TextView
+        android:id="@+id/initial_skip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SKIP TUTORIAL"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/initial_next"
+        android:padding="8dp"
+        android:textSize="18sp"
+        android:textColor="@color/colorPrimary"
+        />
+    <TextView
+        android:id="@+id/initial_next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="NEXT"
+        android:textSize="18sp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:textColor="@color/colorPrimary"/>
     <TextView
         android:id="@+id/textView10"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:text="A brief tutorial will be displayed."
         android:textAlignment="center"
         android:textColor="@color/colorPrimaryDark"
@@ -24,7 +47,7 @@
         android:id="@+id/textView9"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:text="Looks like this is your first launch of this application."
         android:textAlignment="center"
         android:textColor="@color/colorPrimaryDark"

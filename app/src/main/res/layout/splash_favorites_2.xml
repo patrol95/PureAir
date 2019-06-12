@@ -30,12 +30,12 @@
 
     <TextView
         android:id="@+id/textView26"
-        android:layout_width="223dp"
-        android:layout_height="41dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginStart="92dp"
         android:layout_marginTop="596dp"
         android:background="#B3FFFFFF"
-        android:text="You can use those buttons to zoom out and zoom in the map."
+        android:text="You can use those buttons\nto zoom out and zoom in the map."
         android:textAlignment="center"
         android:textColor="@color/colorPrimary"
         android:textSize="15sp"
@@ -55,5 +55,27 @@
         android:textSize="15sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/splash_favourites2_skip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SKIP TUTORIAL"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/splash_favourites2_next"
+        android:padding="8dp"
+        android:textSize="18sp"
+        android:textColor="#FFF"
+        />
+    <TextView
+        android:id="@+id/splash_favourites2_next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="NEXT"
+        android:textSize="18sp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:textColor="#FFF"/>
 
 </android.support.constraint.ConstraintLayout>

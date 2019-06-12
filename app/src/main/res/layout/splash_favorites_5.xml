@@ -42,4 +42,26 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/splash_favourites5_skip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SKIP TUTORIAL"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/splash_favourites5_next"
+        android:padding="8dp"
+        android:textSize="18sp"
+        android:textColor="#FFF"
+        />
+    <TextView
+        android:id="@+id/splash_favourites5_next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="NEXT"
+        android:textSize="18sp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:textColor="#FFF"/>
+
 </android.support.constraint.ConstraintLayout>
