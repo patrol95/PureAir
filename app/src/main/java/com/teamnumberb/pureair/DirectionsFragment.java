@@ -11,7 +11,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SearchView;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +18,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.osmdroid.api.IMapController;
-import org.osmdroid.bonuspack.location.GeocoderGraphHopper;
 import org.osmdroid.bonuspack.location.GeocoderNominatim;
 import org.osmdroid.bonuspack.routing.GraphHopperRoadManager;
 import org.osmdroid.bonuspack.routing.Road;
@@ -45,7 +43,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Scanner;
 
 class PollutionDataListener implements Runnable {
@@ -210,7 +207,7 @@ public class DirectionsFragment extends Fragment implements LocationListener {
                         if (roadOverlay != null)
                             mMapView.getOverlays().remove(roadOverlay);
 
-                        Road bestRoute = selectBestRoute();
+                        Road bestRoute = algorithm();
 
                         roadOverlay = RoadManager.buildRoadOverlay(bestRoute);
                         roadOverlay.setWidth(20);
@@ -458,7 +455,7 @@ public class DirectionsFragment extends Fragment implements LocationListener {
         t.run();
     }
 
-    private Road selectBestRoute() {
+    private Road algorithm() {
         final String apiKey = getGraphhopperApiKey();
         GraphHopperRoadManager roadManager = new GraphHopperRoadManager(apiKey, false);
         roadManager.addRequestOption("vehicle=bike");
