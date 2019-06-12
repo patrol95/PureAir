@@ -38,6 +38,7 @@
         android:textAlignment="center"
         android:textColor="@color/colorPrimary"
         android:textSize="15sp"
+
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -46,8 +47,8 @@
         android:id="@+id/textView21"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="184dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="124dp"
         android:background="#B3FFFFFF"
         android:text="Type in a name \nfor your favorite location."
         android:textAlignment="center"
@@ -55,5 +56,31 @@
         android:textSize="15sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/splash_favourites3_skip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="SKIP TUTORIAL"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/splash_favourites3_next"
+        android:padding="8dp"
+        android:paddingEnd="70dp"
+        android:textSize="18sp"
+        android:textColor="#FFF"
+        android:textAlignment="viewEnd"
+        android:background="@color/colorPrimary"
+        />
+    <TextView
+        android:id="@+id/splash_favourites3_next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="NEXT"
+        android:textSize="18sp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:textColor="#FFF"
+        android:background="@color/colorPrimary"/>
 
 </android.support.constraint.ConstraintLayout>
